@@ -1,0 +1,8 @@
+[package]
+name = "quantity"
+version = "0.0.1"
+edition = "2024"
+description = "A type-safe library for handling physical quantities with units."
+license = "MIT OR Apache-2.0"  # 必须填写有效许可证
+authors = ["liuyuan <375798574@qq.com>"]
+[dependencies]
