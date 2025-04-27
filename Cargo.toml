@@ -1,8 +1,11 @@
 [package]
-name = "quantity"
-version = "0.0.1"
+name = "quantity" # 必须是唯一的，全crates.io范围内
+version = "0.0.1" # 遵循语义化版本控制
 edition = "2024"
 description = "A type-safe library for handling physical quantities with units."
-license = "MIT OR Apache-2.0"  # 必须填写有效许可证
+license = "MIT OR Apache-2.0"  # 必须使用SPDX标识符
 authors = ["liuyuan <375798574@qq.com>"]
+repository = "https://github.com/liuyuan77/quantity"
+documentation = "https://docs.rs/quantity"
+keywords = ["quantity", "SI", "units"]  # 最多5个
 [dependencies]
