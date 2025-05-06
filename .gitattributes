@@ -1,0 +1,2 @@
+# 强制所有 .rs 文件使用 LF（Unix 风格）
+* text=auto eol=lf
