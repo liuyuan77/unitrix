@@ -1,6 +1,7 @@
 [package]
 name = "physunits" # 必须是唯一的，全crates.io范围内
 version = "0.0.2"
+description = "DEPRECATED: Use 'physunits' instead"
 edition = "2024"
 rust-version = "1.86.0" # 最低支持的 Rust 编译器版本
 authors = ["liuyuan <375798574@qq.com>"]
