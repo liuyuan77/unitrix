@@ -10,12 +10,12 @@ use typenum::{
     N1, N2, N3, N6, N9, N12, N15, N18, N21, N24, N27, N30,
     Integer, IsEqual, Sum, Diff
 };
-use std::marker::PhantomData;
-use std::ops::{Add, Sub, Mul, Div};
+use core::marker::PhantomData;
+use core::ops::{Add, Sub, Mul, Div};
 
-/// PrefixLike trait defines operations related to SI prefixes
+/// Prefixed trait defines operations related to SI prefixes
 /// SI词头特质定义了与SI词头相关的操作
-pub trait PrefixLike {
+pub trait Prefixed {
     /// The symbol of the prefix (e.g. "k" for kilo)
     /// 词头符号(例如"k"表示千)
     const SYMBOL: &'static str;
@@ -48,132 +48,132 @@ impl<Exp: Integer> Prefix<Exp> {
 }
 
 // 为各类型实现PrefixLike
-// Implement PrefixLike for various types
+// Implement Prefixed for various types
 
 // 无词头 / No prefix
-impl PrefixLike for Prefix<Z0> {
+impl Prefixed for Prefix<Z0> {
     const SYMBOL: &'static str = "";
     const EXPONENT: i32 = 0;
 }
 
 // 正词头 / Positive prefixes
-impl PrefixLike for Prefix<P1> {
+impl Prefixed for Prefix<P1> {
     const SYMBOL: &'static str = "da";
     const EXPONENT: i32 = 1;
 }
 
-impl PrefixLike for Prefix<P2> {
+impl Prefixed for Prefix<P2> {
     const SYMBOL: &'static str = "h";
     const EXPONENT: i32 = 2;
 }
 
-impl PrefixLike for Prefix<P3> {
+impl Prefixed for Prefix<P3> {
     const SYMBOL: &'static str = "k";
     const EXPONENT: i32 = 3;
 }
 
-impl PrefixLike for Prefix<P6> {
+impl Prefixed for Prefix<P6> {
     const SYMBOL: &'static str = "M";
     const EXPONENT: i32 = 6;
 }
 
-impl PrefixLike for Prefix<P9> {
+impl Prefixed for Prefix<P9> {
     const SYMBOL: &'static str = "G";
     const EXPONENT: i32 = 9;
 }
 
-impl PrefixLike for Prefix<P12> {
+impl Prefixed for Prefix<P12> {
     const SYMBOL: &'static str = "T";
     const EXPONENT: i32 = 12;
 }
 
-impl PrefixLike for Prefix<P15> {
+impl Prefixed for Prefix<P15> {
     const SYMBOL: &'static str = "P";
     const EXPONENT: i32 = 15;
 }
 
-impl PrefixLike for Prefix<P18> {
+impl Prefixed for Prefix<P18> {
     const SYMBOL: &'static str = "E";
     const EXPONENT: i32 = 18;
 }
 
-impl PrefixLike for Prefix<P21> {
+impl Prefixed for Prefix<P21> {
     const SYMBOL: &'static str = "Z";
     const EXPONENT: i32 = 21;
 }
 
-impl PrefixLike for Prefix<P24> {
+impl Prefixed for Prefix<P24> {
     const SYMBOL: &'static str = "Y";
     const EXPONENT: i32 = 24;
 }
 
-impl PrefixLike for Prefix<P27> {
+impl Prefixed for Prefix<P27> {
     const SYMBOL: &'static str = "R";
     const EXPONENT: i32 = 27;
 }
 
-impl PrefixLike for Prefix<P30> {
+impl Prefixed for Prefix<P30> {
     const SYMBOL: &'static str = "Q";
     const EXPONENT: i32 = 30;
 }
 
 // 负词头 / Negative prefixes
-impl PrefixLike for Prefix<N1> {
+impl Prefixed for Prefix<N1> {
     const SYMBOL: &'static str = "d";
     const EXPONENT: i32 = -1;
 }
 
-impl PrefixLike for Prefix<N2> {
+impl Prefixed for Prefix<N2> {
     const SYMBOL: &'static str = "c";
     const EXPONENT: i32 = -2;
 }
 
-impl PrefixLike for Prefix<N3> {
+impl Prefixed for Prefix<N3> {
     const SYMBOL: &'static str = "m";
     const EXPONENT: i32 = -3;
 }
 
-impl PrefixLike for Prefix<N6> {
+impl Prefixed for Prefix<N6> {
     const SYMBOL: &'static str = "μ";
     const EXPONENT: i32 = -6;
 }
 
-impl PrefixLike for Prefix<N9> {
+impl Prefixed for Prefix<N9> {
     const SYMBOL: &'static str = "n";
     const EXPONENT: i32 = -9;
 }
 
-impl PrefixLike for Prefix<N12> {
+impl Prefixed for Prefix<N12> {
     const SYMBOL: &'static str = "p";
     const EXPONENT: i32 = -12;
 }
 
-impl PrefixLike for Prefix<N15> {
+impl Prefixed for Prefix<N15> {
     const SYMBOL: &'static str = "f";
     const EXPONENT: i32 = -15;
 }
 
-impl PrefixLike for Prefix<N18> {
+impl Prefixed for Prefix<N18> {
     const SYMBOL: &'static str = "a";
     const EXPONENT: i32 = -18;
 }
 
-impl PrefixLike for Prefix<N21> {
+impl Prefixed for Prefix<N21> {
     const SYMBOL: &'static str = "z";
     const EXPONENT: i32 = -21;
 }
 
-impl PrefixLike for Prefix<N24> {
+impl Prefixed for Prefix<N24> {
     const SYMBOL: &'static str = "y";
     const EXPONENT: i32 = -24;
 }
 
-impl PrefixLike for Prefix<N27> {
+impl Prefixed for Prefix<N27> {
     const SYMBOL: &'static str = "r";
     const EXPONENT: i32 = -27;
 }
 
-impl PrefixLike for Prefix<N30> {
+impl Prefixed for Prefix<N30> {
     const SYMBOL: &'static str = "q";
     const EXPONENT: i32 = -30;
 }
@@ -304,18 +304,18 @@ mod tests {
     
     #[test]
     fn test_type_aliases() {
-        assert_eq!(<PrefixMul<Kilo, Milli> as PrefixLike>::EXPONENT, 0);
-        assert_eq!(<PrefixDiv<Mega, Kilo> as PrefixLike>::EXPONENT, 3);
+        assert_eq!(<PrefixMul<Kilo, Milli> as Prefixed>::EXPONENT, 0);
+        assert_eq!(<PrefixDiv<Mega, Kilo> as Prefixed>::EXPONENT, 3);
     }
 }
 
 /// 调试输出实现
 /// Debug output implementation
-impl<Exp: Integer> std::fmt::Display for Prefix<Exp>
+impl<Exp: Integer> core::fmt::Display for Prefix<Exp>
 where
-    Prefix<Exp>: PrefixLike,
+    Prefix<Exp>: Prefixed,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(f, "Prefix({}, 10^{})", Self::SYMBOL, Self::EXPONENT)
     }
 }

@@ -1,5 +1,5 @@
 [package]
-name = "PhysUnits" # 必须是唯一的，全crates.io范围内
+name = "physunits" # 必须是唯一的，全crates.io范围内
 version = "0.0.1"
 edition = "2024"
 rust-version = "1.86.0" # 最低支持的 Rust 编译器版本
@@ -27,3 +27,7 @@ typenum = "1.16"
 
 # 自动生成运算符重载
 derive_more = { version = "2.0", features = ["full"] }
+
+
+[features]
+std = []          # 

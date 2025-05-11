@@ -1,174 +1,147 @@
-# PhysUnits — Type-Safe Physical Quantities for Rust
+# PhysUnits · 物理单位库
 
-[![Crates.io](https://img.shields.io/crates/v/quantity)](https://crates.io/crates/physunits)
-[![Docs.rs](https://img.shields.io/docsrs/quantity)](https://docs.rs/physunits)
+**Type-safe physical quantities with dimensional analysis**  
+**带量纲分析的类型安全物理量库**  
+
+[![Crates.io](https://img.shields.io/crates/v/physunits)](https://crates.io/crates/physunits)
+[![Docs.rs](https://img.shields.io/docsrs/physunits)](https://docs.rs/physunits)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-**PhysUnits** is a Rust library for type-safe physical quantities with compile-time dimensional analysis and zero-cost abstractions.
+
+A Rust library for safe unit operations /  
+Rust实现的类型安全单位计算库  
+
+## Core Design / 核心设计
+
+### 1. Dimension / 量纲
 
 ```rust
-use quantity::si::{Meter, Second, Quantity};
-
-let speed: Quantity<f64, MeterPerSecond> = 5.0.into();
-let length = Quantity::<i32, Kilometer>::from(3);
-// Compile-time error: speed + length ❌
+/// Base SI dimensions / 国际单位制基本量纲
+pub struct Dimension<
+    L: Integer,  // Length (m) / 长度(米)
+    M: Integer,  // Mass (kg) / 质量(千克)
+    T: Integer,  // Time (s) / 时间(秒)
+    I: Integer,  // Current (A) / 电流(安培)
+    Th: Integer, // Temperature (K) / 温度(开尔文) 
+    N: Integer,  // Amount (mol) / 物质的量(摩尔)
+    J: Integer   // Luminosity (cd) / 发光强度(坎德拉)
+>(PhantomData<(L, M, T, I, Th, N, J)>);
 ```
 
-##### Design Philosophy
-
-###### Core Components
-
-1. **Dimension** (Type-level exponents)
-
-   ```rust
-   Dimension<L, M, T, I, Th, N, J> // Base SI units
-   ```
-
-2. **Unit** (Conversion rules)
-
-   ```rust
-   trait Unit {
-       type Dimension;
-       fn to_base(value: f64) -> f64;
-       const SYMBOL: &'static str;
-   }
-   ```
-
-3. **Quantity** (Value container)
-
-   ```rust
-   struct Quantity<V, U: Unit> { value: V, .. }
-   ```
-
-###### Features
-
-- 📏 **Dimensional safety** at compile time
-- ⚡ **Zero runtime overhead**
-- 🔢 **Dual numeric support** (integers/floats)
-- 🔄 **Runtime prefix handling**
-
-##### Usage
-
-###### Basic Example
+### 2. Unit / 单位
 
 ```rust
-use quantity::si::{Kelvin, Celsius, Quantity};
-
-let boiling: Quantity<f64, Celsius> = 100.0.into();
-let kelvin = boiling.convert::<Kelvin>(); // 373.15 K
+/// Unit conversion rules / 单位转换规则
+pub trait Unit {
+    type Dimension;
+    
+    /// Convert to base unit / 转换到基准单位
+    fn to_base(value: f64) -> f64;
+    
+    /// Unit symbol / 单位符号
+    const SYMBOL: &'static str;
+}
 ```
 
-###### Unit Math
+### 3. Quantity / 物理量
+
+```rust
+/// Physical quantity with value and unit / 带单位和值的物理量
+pub struct Quantity<V, U: Unit> {
+    /// Scalar value / 标量值
+    pub value: V,
+    _unit: PhantomData<U>
+}
+
+impl<V, U: Unit> Quantity<V, U> {
+    /// Create new quantity / 创建新物理量
+    pub fn new(value: V) -> Self {
+        Self { value, _unit: PhantomData }
+    }
+}
+```
+
+## Features / 特性
+
+| Feature | 功能描述 |
+|---------|----------|
+| 📏 Compile-time dimensional safety | 编译期量纲安全 |
+| ⚡ Zero runtime overhead | 零运行时开销 |
+| 🔢 Integer & float support | 支持整数和浮点数 |
+| 🔄 Automatic unit conversion | 自动单位转换 |
+| 🏷️ Runtime prefix handling | 运行时词头处理 |
+
+## Usage / 使用示例
+
+### Basic Conversion / 基础转换
+
+```rust
+use physunits::{Meter, Inch, Quantity};
+
+// Create length / 创建长度
+let length = Quantity::<f64, Meter>::new(2.0);
+
+// Convert units / 单位转换
+let inches = length.convert::<Inch>();
+println!("{} m = {} in", length.value, inches.value);
+```
+
+### Temperature / 温度转换
+
+```rust
+use physunits::{Celsius, Fahrenheit};
+
+let boiling = Quantity::<f64, Celsius>::new(100.0);
+let fahr = boiling.convert::<Fahrenheit>();
+println!("Water boils at {} °F", fahr.value); 
+```
+
+### Force Calculation / 力的计算
+
+```rust
+use physunits::{kg, m, s, N};
+
+let mass = 5.0 * kg;
+let acceleration = 9.8 * m / (s * s);
+let force: Quantity<f64, N> = mass * acceleration;
+println!("Force: {} N", force.value);
+```
+
+### Unit Math / 单位运算
 
 ```rust
 let force = 5.0 * kg * m / (s * s);
-let energy = force * (2.0 * m); // 10 J
+let energy = force * (2.0 * m); // 10 J / 10焦耳
 ```
 
-##### Comparison
+## Comparison / 对比
 
-| Feature         | Quantity | uom   | nalgebra |
+| Feature         | PhysUnits | uom   | nalgebra |
 |----------------|----------|-------|----------|
 | Dim Safety     | ✅        | ✅     | ❌        |
 | Integer Support| ✅        | ⚠️     | ❌        |
 | Runtime Prefix | ✅        | ❌     | ❌        |
 
----
-
-#### PhysUnits—— Rust 类型安全物理量库
-
-
-[![Crates.io](https://img.shields.io/crates/v/quantity)](https://crates.io/crates/physunits)
-[![Docs.rs](https://img.shields.io/docsrs/quantity)](https://docs.rs/physunits)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-**PhysUnits** 是一个提供编译期量纲检查和零成本抽象的 Rust 物理量库。
-
-```rust
-use quantity::si::{Meter, Second, Quantity};
-
-let speed: Quantity<f64, MeterPerSecond> = 5.0.into();
-let length = Quantity::<i32, Kilometer>::from(3);
-// 编译期错误: speed + length ❌
-```
-
-##### 设计理念
-
-###### 核心组件
-
-1. **量纲** (类型级指数)
-
-   ```rust
-   Dimension<L, M, T, I, Th, N, J> // 国际单位制基本量
-   ```
-
-2. **单位** (转换规则)
-
-   ```rust
-   trait Unit {
-       type Dimension;
-       fn to_base(value: f64) -> f64;
-       const SYMBOL: &'static str;
-   }
-   ```
-
-3. **物理量** (值容器)
-
-   ```rust
-   struct Quantity<V, U: Unit> { value: V, .. }
-   ```
-
-###### 特性
-
-- 📏 **编译期量纲安全**
-- ⚡ **零运行时开销**
-- 🔢 **整数/浮点双支持**
-- 🔄 **运行时词头处理**
-
-##### 使用示例
-
-###### 基础用法
-
-```rust
-use quantity::si::{Kelvin, Celsius, Quantity};
-
-let boiling: Quantity<f64, Celsius> = 100.0.into();
-let kelvin = boiling.convert::<Kelvin>(); // 373.15 K
-```
-
-###### 单位运算
-
-```rust
-let force = 5.0 * kg * m / (s * s);
-let energy = force * (2.0 * m); // 10 焦耳
-```
-
-##### 对比
-
-| 特性          | Quantity | uom   | nalgebra |
+| 特性          | PhysUnits | uom   | nalgebra |
 |--------------|----------|-------|----------|
 | 量纲安全      | ✅        | ✅     | ❌        |
 | 整数支持      | ✅        | ⚠️     | ❌        |
 | 运行时词头    | ✅        | ❌     | ❌        |
 
-##### Installation 安装
+## Installation / 安装
 
 ```rust
 [dependencies]
-quantity = "0.1"
+physunits = "0.0.1"
 ```
 
-##### Contributing 贡献
+## Contributing / 贡献指南
 
-We welcome issues and PRs! 欢迎提交 Issue 和 PR！
+We welcome issues and PRs! / 欢迎提交 Issue 和 PR！
 
-Key needs:
+Key needs: / 重点需求：
 
-- More unit definitions
+- More unit definitions / 更多单位定义
 
-- Real-world physics test cases
+- Real-world physics test cases / 实际物理测试案例
 
-重点需求：
-
-- 更多单位定义
-
-- 实际物理测试案例
+- Better error messages / 更好的错误提示
