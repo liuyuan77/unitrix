@@ -5,11 +5,11 @@ edition = "2024"
 rust-version = "1.86.0" # 最低支持的 Rust 编译器版本
 authors = ["liuyuan <375798574@qq.com>"]
 description = "A type-safe library for handling physical quantities with units."# 包的简短描述
-documentation = "https://docs.rs/quantity" # 包的在线文档地址（docs.rs 自动生成）
+documentation = "https://docs.rs/physunits" # 包的在线文档地址（docs.rs 自动生成）
 # 项目源代码仓库地址（GitHub）
-repository = "https://github.com/liuyuan77/quantity"
+repository = "https://github.com/liuyuan77/physunits"
 readme = "README.md"  # README 文件路径（用于 crates.io 展示）
-keywords = ["quantity", "SI", "units", "no_std"]  # 关键词列表,最多5个,用于 crates.io 搜索和分类
+keywords = ["physunits", "SI", "units", "no_std"]  # 关键词列表,最多5个,用于 crates.io 搜索和分类
 categories = ["no-std", "science", "value-formatting"] # 包的分类（crates.io 分类）
 license = "MIT OR Apache-2.0"  # 必须使用SPDX标识符
 
