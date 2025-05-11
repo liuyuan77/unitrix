@@ -5,7 +5,7 @@ description = "DEPRECATED: Use 'physunits' instead"
 edition = "2024"
 rust-version = "1.86.0" # 最低支持的 Rust 编译器版本
 authors = ["liuyuan <375798574@qq.com>"]
-description = "A type-safe library for handling physical quantities with units."# 包的简短描述
+# description = "A type-safe library for handling physical quantities with units."# 包的简短描述
 documentation = "https://docs.rs/physunits" # 包的在线文档地址（docs.rs 自动生成）
 # 项目源代码仓库地址（GitHub）
 repository = "https://github.com/liuyuan77/physunits"
