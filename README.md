@@ -1,4 +1,4 @@
-# PhysUnits · 物理单位库
+# physunits · 物理单位库
 
 **Type-safe physical quantities with dimensional analysis**  
 **带量纲分析的类型安全物理量库**  
@@ -121,6 +121,7 @@ let energy = force * (2.0 * m); // 10 J / 10焦耳
 | Integer Support| ✅        | ⚠️     | ❌        |
 | Runtime Prefix | ✅        | ❌     | ❌        |
 
+
 | 特性          | PhysUnits | uom   | nalgebra |
 |--------------|----------|-------|----------|
 | 量纲安全      | ✅        | ✅     | ❌        |
@@ -131,7 +132,7 @@ let energy = force * (2.0 * m); // 10 J / 10焦耳
 
 ```rust
 [dependencies]
-physunits = "0.0.1"
+physunits = "0.0.4"
 ```
 
 ## Contributing / 贡献指南
