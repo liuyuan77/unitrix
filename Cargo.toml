@@ -1,5 +1,5 @@
 [package]
-name = "physunits" # 必须是唯一的，全crates.io范围内
+name = "unitrix" # 必须是唯一的，全crates.io范围内
 version = "0.0.4"
 description = "DEPRECATED: Use 'physunits' instead"
 edition = "2024"
