@@ -6,12 +6,13 @@ use core::marker::PhantomData;
 use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
 
 use crate::sealed::Sealed;
-use crate::constant::{Prod, Diff};
+use crate::constant::Prod;
 use super::Dimensional;
 use super::prefix::Prefixed;
 use crate::variable::{Numeric, Scalar, Var};
 use super::Unitary;
-
+use super::Unit;
+use super::ratio::{NoRatio, Scaled};
 /// SI基础结构
 /// 
 /// # 类型参数
@@ -24,7 +25,7 @@ pub struct Si<
     Pr:Prefixed,
 >(
     pub Value,
-    PhantomData<(D, Pr)>
+    pub PhantomData<(D, Pr)>
 );
 
 // ========== 构造函数 ==========
@@ -180,19 +181,49 @@ where
 // Si * Si
 impl<V, D1, D2, Pr1, Pr2> Mul<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
 where
-    V: Mul<V,Output = V>,
-    D1: Dimensional + Mul<D2>,
+    V: Scalar + Mul<V,Output: Scalar>,
+    D1: Dimensional + Mul<D2,Output: Dimensional>,
     D2: Dimensional,
-    Pr1: Prefixed + Mul<Pr2>,
+    Pr1: Prefixed + Mul<Pr2,Output: Prefixed>,
     Pr2: Prefixed,
-    Prod<Pr1, Pr2>: Prefixed,
-    Prod<D1, D2>: Dimensional,
 {
-    type Output = Si<V, Prod<D1, D2>, Prod<Pr1, Pr2>>;
+    type Output = Si< <V as Mul>::Output, Prod<D1, D2>, Prod<Pr1, Pr2> >;
     
     /// 乘法（量纲相乘，前缀相加）
     fn mul(self, rhs: Si<V, D2, Pr2>) -> Self::Output {
         Si(self.0 * rhs.0, PhantomData)
+    }
+}
+
+// Si * T
+impl<T, D, Pr> Mul<T> for Si<Var<T>, D, Pr>
+where
+    T:Numeric,
+    Var<T>: Scalar + Mul<Var<T>,Output: Scalar>,
+    D: Dimensional,
+    Pr: Prefixed,
+{
+    type Output = Si< <Var<T> as Mul>::Output, D, Pr >;
+    
+    /// 乘法（量纲、前缀不变）
+    fn mul(self, rhs: T) -> Self::Output {
+        Si(self.0 * Var(rhs), PhantomData)
+    }
+}
+
+// Si * Var<T>
+impl<T, D, Pr> Mul<Var<T>> for Si<Var<T>, D, Pr>
+where
+    T:Numeric,
+    Var<T>: Scalar + Mul<Var<T>,Output: Scalar>,
+    D: Dimensional,
+    Pr: Prefixed,
+{
+    type Output = Si< <Var<T> as Mul>::Output, D, Pr >;
+    
+    /// 乘法（量纲、前缀不变）
+    fn mul(self, rhs: Var<T>) -> Self::Output {
+        Si(self.0 * rhs, PhantomData)
     }
 }
 
@@ -223,21 +254,40 @@ where
     }
 }
 
-// Si * Unt未实现
+// Si * Unit
+//因为编译器要求，需要拆解Si
+impl<S, R, T, D, Pr> Mul<Unit<S, R>> for Si<Var<T>, D, Pr>
+where
+    T: Numeric,
+    Var<T>: Scalar,
+    D: Dimensional,
+    Pr: Prefixed,
+    S: Sied + Mul<Si<Var<T>, D, Pr>, Output: Sied>,
+    Si<Var<T>, D, Pr>: Sied,
+    R: Scaled,
+{
+    type Output = Unit<
+        <S as Mul<Si<Var<T>, D, Pr>>>::Output,  // 单位相乘
+        R
+    >;
+    
+    /// 物理量乘法
+    fn mul(self, rhs: Unit<S, R>) -> Self::Output {
+        Unit(rhs.0 * self, PhantomData)
+    }
+}
 
 // ----- 除法运算符及除法赋值 -----
 // Si / Si
 impl<V, D1, D2, Pr1, Pr2> Div<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
 where
-    V: Div<V,Output = V>,
-    D1: Dimensional + Div<D2>,
+    V: Scalar + Div<V,Output: Scalar>,
+    D1: Dimensional + Div<D2,Output: Dimensional>,
     D2: Dimensional,
-    Pr1: Prefixed + Div<Pr2>,
+    Pr1: Prefixed + Div<Pr2,Output: Prefixed>,
     Pr2: Prefixed,
-    <Pr1 as Div<Pr2>>::Output: Prefixed,
-    <D1 as Div<D2>>::Output: Dimensional,
 {
-    type Output = Si<V, Diff<D1, D2>, Diff<Pr1, Pr2>>;
+    type Output = Si< <V as Div>::Output, <D1 as Div<D2>>::Output, <Pr1 as Div<Pr2>>::Output >;
     
     /// 除法
     fn div(self, rhs: Si<V, D2, Pr2>) -> Self::Output {
@@ -272,4 +322,27 @@ where
     }
 }
 
-// Si / Unt未实现
+// Si / U
+//因为编译器对Si要求，必须拆解后打包
+impl<T, D1, Pr1, D2, Pr2, R> Div<Unit<Si<Var<T>, D2, Pr2>, R>> for Si<Var<T>, D1, Pr1>
+where
+    T: Numeric,
+    Var<T>: Scalar,
+    D1: Dimensional,
+    D2: Dimensional,
+    Pr1: Prefixed,
+    Pr2: Prefixed,
+    R: Scaled,
+    NoRatio: Div<R>,
+    Si<Var<T>, D1, Pr1>: Div<Si<Var<T>, D2, Pr2>,Output: Sied>,
+{
+    type Output = Unit<
+        < Si<Var<T>, D1, Pr1> as Div<Si<Var<T>, D2, Pr2>> >::Output,
+        <NoRatio as Div<R>>::Output,
+    >;
+    
+    /// 物理量除法
+    fn div(self, rhs: Unit<Si<Var<T>, D2, Pr2>, R>) -> Self::Output {
+        Unit(self / rhs.0, PhantomData)
+    }
+}

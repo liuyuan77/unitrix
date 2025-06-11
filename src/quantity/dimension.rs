@@ -146,7 +146,7 @@ where
     
     /// Multiplies two units by adding their dimensional exponents
     /// 通过相加量纲指数来相乘两个单位
-    fn mul(self, rhs: Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>) -> Self::Output {
+    fn mul(self, _rhs: Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>) -> Self::Output {
         Dimension::new()
     }
 }
@@ -183,7 +183,7 @@ where
     
     /// Divides two units by subtracting their dimensional exponents
     /// 通过相减量纲指数来相除两个单位
-    fn div(self, rhs: Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>) -> Self::Output {
+    fn div(self, _rhs: Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>) -> Self::Output {
         Dimension::new()
     }
 }

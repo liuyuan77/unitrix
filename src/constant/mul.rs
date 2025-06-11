@@ -101,7 +101,7 @@ impl<H: NonZero + Mul<I>, I: NonZero + Add<B0<<H as Mul<I>>::Output>>> Mul<I> fo
 /// 乘法运算的类型别名：`Prod<A, B> = <A as Mul<B>>::Output`
 pub type Prod<A, B> = <A as Mul<B>>::Output;
 
-// ========== 与Var<T>乘法(新增加) ==========
+// ========== 与Var<T>乘法 ==========
 // ========== 0 * Var<T> ==========
 impl<T:Numeric> Mul<Var<T>> for Z0 {
     type Output = Self;

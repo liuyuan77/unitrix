@@ -70,7 +70,7 @@ where
     }
 }
 
-pub trait Scaled: Sealed{}
+pub trait Scaled: Sealed{}// 不含NoRatio
 impl<Exp5: Integer, ExpPi:Integer, Exp3: Integer, Exp2: Integer> Sealed for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
 
 impl<Exp5: Integer, ExpPi: Integer, Exp3: Integer, Exp2: NonZero> Scaled for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
@@ -82,11 +82,3 @@ impl<Exp5: NonZero> Scaled for Ratio<Exp5, Z0, Z0, Z0>{}
 
 /// 单位1 (无比例)
 pub type NoRatio = Ratio<Z0, Z0, Z0, Z0>;
-
-// ========== 实用类型别名 ==========
-
-/// 计算两个比例的乘积类型
-pub type RatioMul<A, B> = <A as Mul<B>>::Output;
-
-/// 计算两个比例的商类型
-pub type RatioDiv<A, B> = <A as Div<B>>::Output;

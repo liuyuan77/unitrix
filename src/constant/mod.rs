@@ -26,7 +26,7 @@ mod mul;
 pub use mul::*;
 
 mod div;
-pub use mul::*;
+pub use div::*;
 
 pub(super) mod shl;
 //pub use shl::*;

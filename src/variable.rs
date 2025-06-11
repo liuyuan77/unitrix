@@ -4,7 +4,7 @@
  */
 
 use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign};
-use crate::constant::Integer;
+use crate::constant::{N1, P1, B0, B1, Integer, NonZero};
 /// 定义 Numeric trait，约束 T 必须实现基本数值运算
 /// 包括：
 /// - 一元负号运算 (Neg)
@@ -134,16 +134,6 @@ impl<T: Numeric> SubAssign for Var<T> {
 // 与常量运算实现
 // =============================================
 
-/// 实现 Var 与常量的乘法运算
-/// 用法: V * C
-impl<T: Numeric, C:Integer + Mul<Var<T>>> Mul<C> for Var<T> {
-    type Output = <C as Mul<Var<T>>>::Output;
-
-    fn mul(self, c: C) -> Self::Output {
-        c * self // 交换乘法顺序，调用常量的 * 运算符
-    }
-}
-
 /// 实现 Var 与常量的加法运算
 /// 用法: V + C
 impl<T: Numeric, C: Integer + Add<Var<T>>> Add<C> for Var<T> {
@@ -164,6 +154,64 @@ where
 
     fn sub(self, c: C) -> Self::Output {
         -c+self // 转换为 -c + V 的形式
+    }
+}
+
+/// 实现 Var 与常量的乘法运算
+/// 用法: V * C
+impl<T: Numeric, C:Integer + Mul<Var<T>>> Mul<C> for Var<T> {
+    type Output = <C as Mul<Var<T>>>::Output;
+
+    fn mul(self, c: C) -> Self::Output {
+        c * self // 交换乘法顺序，调用常量的 * 运算符
+    }
+}
+
+/// 实现 Var 与常量的除法运算（部分实现）
+
+/// V / 0 未实现
+
+/// V / 1 = V
+impl<T: Numeric> Div<P1> for Var<T> {
+    type Output = Self;
+
+    fn div(self, _rhs: P1) -> Self::Output {
+        self
+    }
+}
+
+/// V / -1 = -V
+impl<T: Numeric> Div<N1> for Var<T> {
+    type Output = Self;
+
+    fn div(self, _rhs: N1) -> Self::Output {
+        -self
+    }
+}
+
+/// V / B0
+impl<H: NonZero, T:Numeric> Div<B0<H>> for Var<T>
+where 
+    B0<H>: Integer,
+    Var<T>: Div<Var<T>,Output = Var<T>>,
+{
+    type Output = Var<T>;
+    #[inline(always)]
+    fn div(self, _rhs: B0<H>) -> Self::Output {
+        Var(self.0 / T::from(B0::<H>::to_i32()))
+    }
+}
+
+/// V / B1
+impl<H: NonZero, T:Numeric> Div<B1<H>> for Var<T>
+where 
+    B1<H>: Integer,
+    Var<T>: Div<Var<T>,Output = Var<T>>,
+{
+    type Output = Var<T>;
+    #[inline(always)]
+    fn div(self, _rhs: B1<H>) -> Self::Output {
+        Var(self.0 / T::from(B1::<H>::to_i32()))
     }
 }
 

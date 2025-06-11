@@ -7,7 +7,7 @@
 //! Provides all standard SI prefixes for unit conversion, handling only powers of 10.
 //! Includes both positive prefixes (da, h, k etc.) and negative prefixes (d, c, m etc.)
 
-use crate::constant::{Const, Diff, Integer, NonZero, Sum};
+use crate::constant::{Const, Diff, Integer, Sum};
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
 
