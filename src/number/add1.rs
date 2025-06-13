@@ -5,8 +5,8 @@
 //!     2. B0<H> + 1，该位B1，无进位，原高位是N1时要规范格式，即H=N1时要特化，此时源码为B0<N1>
 //!     3. B1<H> + 1，该位B0，有进位，当H+1 = Z0时要规范格式,即H=N1时要特化，此时源码为B1<N1>，不是简化格式
 
-use super::basic::{Z0, P1, N1, B0, B1, NonZero, NonNegOne};
-use crate::variable::{Var,Numeric};
+use super::constant::{Z0, P1, N1, B0, B1, NonZero, NonNegOne};
+use crate::number::{Var,Numeric};
 /// 加一特质 / Increment trait
 /// 
 /// 为类型系统提供加一操作的计算能力
@@ -51,8 +51,6 @@ impl Add1 for N1 {
         Z0::new()
     }
 }
-
-
 
 // ========== 递归类型实现 / Recursive Type Implementations ==========
 

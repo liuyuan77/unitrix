@@ -10,7 +10,7 @@ use super::{Si, Sied};
 use super::ratio::{NoRatio, Scaled};
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::variable::{Numeric, Scalar, Var};
+use crate::number::{Numeric, Scalar, Var};
 use super::Unitary;
 
 // ========== 辅助trait和实现 ==========

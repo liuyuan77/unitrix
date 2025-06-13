@@ -7,11 +7,7 @@
 /// - 带进位加法 (Addition with carry)
 /// - 结果标准化处理 (Result standardization)
 use core::ops::Add;
-use super::basic::{Z0, P1, N1, B0, B1, Integer, NonZero};
-use super::add1::{Add1, AddOne};
-use super::sub1::Sub1;
-use super::standardization::{IfB0,IfB1};
-use crate::variable::{Var,Numeric};
+use crate::number::{Z0, P1, N1, B0, B1, Add1, Sub1, Integer, NonZero, IfB0,IfB1, Var,Numeric};
 
 // ==================== 带进位加法 Trait ====================
 // ==================== Addition With Carry Trait ====================
@@ -29,8 +25,7 @@ pub trait AddWithCarry<Rhs> {// NonZero
 
 // ========== 带进位P1 + NonZero ==========
 //  带进位 P1 + All
-impl<I:NonZero+ Add<B0<P1>>> AddWithCarry<I> for P1
-{
+impl<I:NonZero+ Add<B0<P1>>> AddWithCarry<I> for P1{
     type Output = I::Output;
 }
 
@@ -41,10 +36,7 @@ impl<I:NonZero> AddWithCarry<I> for N1 {
 
 // ========== 带进位B0 + NonZero ==========
 // B0 + P1
-impl<H: NonZero + Add1> AddWithCarry<P1> for B0<H>
-where
-    <H as Add1>::Output:IfB0
-{//避免B1<N1>,需要特化
+impl<H: NonZero + Add1<Output: IfB0>> AddWithCarry<P1> for B0<H>{//避免B1<N1>,需要特化
     type Output = <H::Output as IfB0>::Output;
 }
 
@@ -59,21 +51,15 @@ impl<H1: NonZero + IfB1,H2: NonZero> AddWithCarry<B0<H2>> for B0<H1>{
 }
 
 // B0 + B1
-impl<H1: NonZero + AddWithCarry<H2>,H2: NonZero> AddWithCarry<B1<H2>> for B0<H1>
-where
-    <H1 as AddWithCarry<H2>>::Output:IfB0
-{
+impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>,H2: NonZero> AddWithCarry<B1<H2>> for B0<H1>{
     type Output = <H1::Output as IfB0>::Output;
 }
 
 // ========== 带进位B1 + NonZero ==========
 
 // B1 + P1
-impl<H: NonZero + Add1> AddWithCarry<P1> for B1<H>
-where
-    AddOne<H>:IfB1,
-{
-    type Output = <AddOne<H> as IfB1>::Output;
+impl<H: NonZero + Add1<Output: IfB1>> AddWithCarry<P1> for B1<H>{
+    type Output = < <H as Add1>::Output as IfB1 >::Output;
 }
 
 // B1 + N1
@@ -82,18 +68,12 @@ impl<H: NonZero + Add1> AddWithCarry<N1> for B1<H>{// 不变
 }
 
 // B1 + B0
-impl<H1: NonZero + AddWithCarry<H2>,H2: NonZero> AddWithCarry<B0<H2>> for B1<H1>
-where
-    <H1 as AddWithCarry<H2>>::Output:IfB0
-{
+impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>,H2: NonZero> AddWithCarry<B0<H2>> for B1<H1>{
     type Output = <H1::Output as IfB0>::Output;
 }
 
 // B1 + B1
-impl<H1: NonZero + AddWithCarry<H2>,H2: NonZero> AddWithCarry<B1<H2>> for B1<H1>
-where
-    <H1 as AddWithCarry<H2>>::Output:IfB1
-{
+impl<H1: NonZero + AddWithCarry<H2,Output: IfB1>,H2: NonZero> AddWithCarry<B1<H2>> for B1<H1>{
     type Output = <H1::Output as IfB1>::Output;
 }
 
@@ -138,11 +118,11 @@ impl<H: NonZero> Add<Z0> for B0<H> {
 }
 
 // B0 + P1
-impl<H:  NonZero + IfB1> Add<P1> for B0<H>
+impl<H:  NonZero> Add<P1> for B0<H>
 where 
     B0<H>: Add1,
 {
-    type Output = AddOne<B0<H>>;
+    type Output = <B0<H> as Add1>::Output;
     #[inline(always)]
     fn add(self, _rhs: P1) -> Self::Output {
         self.add1()
@@ -162,10 +142,7 @@ where
 }
 
 // B0 + B0
-impl<H1: NonZero + Add<H2> + , H2: NonZero> Add<B0<H2>> for B0<H1>
-where
-    <H1 as Add<H2>>::Output: IfB0,
-{
+impl<H1: NonZero + Add<H2, Output: IfB0> + , H2: NonZero> Add<B0<H2>> for B0<H1>{
     type Output = <H1::Output as IfB0>::Output;
     #[inline(always)]
     fn add(self, _rhs: B0<H2>) -> Self::Output {
@@ -174,10 +151,7 @@ where
 }
 
 // B0 + B1
-impl<H1: NonZero + Add<H2>, H2: NonZero> Add<B1<H2>> for B0<H1>
-where
-    <H1 as Add<H2>>::Output: IfB1,
-{
+impl<H1: NonZero + Add<H2,Output: IfB1>, H2: NonZero> Add<B1<H2>> for B0<H1>{
     type Output = <H1::Output as IfB1>::Output;
     #[inline(always)]
     fn add(self, _rhs: B1<H2>) -> Self::Output {
@@ -200,7 +174,7 @@ impl<H:  NonZero> Add<P1> for B1<H>
 where
     B1<H>: Add1,
 {
-    type Output = AddOne<B1<H>>;
+    type Output = <B1<H> as Add1>::Output;
     #[inline(always)]
     fn add(self, _rhs: P1) -> Self::Output {
         self.add1()
@@ -233,20 +207,13 @@ where
 }
 
 // B1 + B1
-impl<H1: NonZero + AddWithCarry<H2>, H2: NonZero> Add<B1<H2>> for B1<H1>
-where
-    <H1 as AddWithCarry<H2>>::Output: IfB0,
-{
+impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>, H2: NonZero> Add<B1<H2>> for B1<H1>{
     type Output = <H1::Output as IfB0>::Output;
     #[inline(always)]
     fn add(self, _rhs: B1<H2>) -> Self::Output {
         <<H1 as AddWithCarry<H2>>::Output as IfB0>::b0()
     }
 }
-
-/// 加法运算的类型别名：`Sum<A, B> = <A as Add<B>>::Output`
-pub type Sum<A, B> = <A as Add<B>>::Output;
-
 
 // ==================== 与Var<T>运算符重载 ====================
 

@@ -1,7 +1,7 @@
 // ratio.rs
 //! 比例因子模块，处理所有非10的幂次的比例关系，包括时间单位、角度单位等
 use crate::sealed::Sealed;
-use crate::constant::{Diff, Integer, NonZero, Sum, Z0};
+use crate::number::{Integer, NonZero, Z0};
 
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
@@ -44,7 +44,12 @@ where
     E3b: Integer,
     E2b: Integer,
 {
-    type Output = Ratio<Sum<E5a, E5b>, Sum<EPia, EPib>, Sum<E3a, E3b>, Sum<E2a, E2b>>;
+    type Output = Ratio<
+        <E5a as Add<E5b>>::Output,
+        <EPia as Add<EPib>>::Output,
+        <E3a as Add<E3b>>::Output,
+        <E2a as Add<E2b>>::Output
+    >;
     
     fn mul(self, _: Ratio<E5b, EPib, E3b, E2b>) -> Self::Output {
         Ratio(PhantomData)
@@ -63,7 +68,12 @@ where
     E3b: Integer,
     E2b: Integer,
 {
-    type Output = Ratio<Diff<E5a, E5b>, Diff<EPia, EPib>, Diff<E3a, E3b>, Diff<E2a, E2b>>;
+    type Output = Ratio<
+        <E5a as Sub<E5b>>::Output,
+        <EPia as Sub<EPib>>::Output,
+        <E3a as Sub<E3b>>::Output,
+        <E2a as Sub<E2b>>::Output
+    >;
     
     fn div(self, _: Ratio<E5b, EPib, E3b, E2b>) -> Self::Output {
         Ratio(PhantomData)

@@ -9,7 +9,7 @@
 //! 本模块提供类型安全的物理单位表示，利用Rust类型系统在编译时强制量纲正确性
 
 use crate::sealed::Sealed;
-use crate::constant::{Z0, Integer, Sum, Diff, Prod};
+use crate::number::{Z0, Integer};
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
 
@@ -75,34 +75,27 @@ impl<M: Integer, KG: Integer, S: Integer, A: Integer, K: Integer, MOL: Integer, 
 Dimension<M, KG, S, A, K, MOL, CD>{
     /// Raises the unit to the power of `N`
     /// 将单位提升到幂次 `N`
-     pub fn pow<N>(self) -> Dimension<
-     Prod<M, N>,
-     Prod<KG, N>,
-     Prod<S, N>,
-     Prod<A, N>,
-     Prod<K, N>,
-     Prod<MOL, N>,
-     Prod<CD, N>,
- >
- where
-     N: Integer,
-     M: Mul<N>,
-     KG: Mul<N>,
-     S: Mul<N>,
-     A: Mul<N>,
-     K: Mul<N>,
-     MOL: Mul<N>,
-     CD: Mul<N>,
-     Prod<M, N>: Integer,
-     Prod<KG, N>: Integer,
-     Prod<S, N>: Integer,
-     Prod<A, N>: Integer,
-     Prod<K, N>: Integer,
-     Prod<MOL, N>: Integer,
-     Prod<CD, N>: Integer,
- {
-     Dimension::new()
- }
+    pub fn pow<N>(self) -> Dimension<
+        <M as Mul<N>>::Output,
+        <KG as Mul<N>>::Output,
+        <S as Mul<N>>::Output,
+        <A as Mul<N>>::Output,
+        <K as Mul<N>>::Output,
+        <MOL as Mul<N>>::Output,
+        <CD as Mul<N>>::Output,
+    >
+    where
+        N: Integer,
+        M: Mul<N, Output: Integer>,
+        KG: Mul<N, Output: Integer>,
+        S: Mul<N, Output: Integer>,
+        A: Mul<N, Output: Integer>,
+        K: Mul<N, Output: Integer>,
+        MOL: Mul<N, Output: Integer>,
+        CD: Mul<N, Output: Integer>,
+    {
+        Dimension::new()
+    }
  
 }
 
@@ -117,31 +110,29 @@ impl Default for Dimension<Z0, Z0, Z0, Z0, Z0, Z0, Z0> {
 impl<M1, M2, KG1, KG2, S1, S2, A1, A2, K1, K2, MOL1, MOL2, CD1, CD2> 
     Mul<Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>> for Dimension<M1, KG1, S1, A1, K1, MOL1, CD1>
 where
-    M1: Integer + Add<M2>,
+    M1: Integer + Add<M2, Output:Integer>,
     M2: Integer,
-    KG1: Integer + Add<KG2>,
+    KG1: Integer + Add<KG2, Output:Integer>,
     KG2: Integer,
-    S1: Integer + Add<S2>,
+    S1: Integer + Add<S2, Output:Integer>,
     S2: Integer,
-    A1: Integer + Add<A2>,
+    A1: Integer + Add<A2, Output:Integer>,
     A2: Integer,
-    K1: Integer + Add<K2>,
+    K1: Integer + Add<K2, Output:Integer>,
     K2: Integer,
-    MOL1: Integer + Add<MOL2>,
+    MOL1: Integer + Add<MOL2, Output:Integer>,
     MOL2: Integer,
-    CD1: Integer + Add<CD2>,
+    CD1: Integer + Add<CD2, Output:Integer>,
     CD2: Integer,
-    Sum<M1, M2>: Integer,
-    Sum<KG1, KG2>: Integer,
-    Sum<S1, S2>: Integer,
-    Sum<A1, A2>: Integer,
-    Sum<K1, K2>: Integer,
-    Sum<MOL1, MOL2>: Integer,
-    Sum<CD1, CD2>: Integer,
 {
     type Output = Dimension<
-        Sum<M1, M2>, Sum<KG1, KG2>, Sum<S1, S2>,
-        Sum<A1, A2>, Sum<K1, K2>, Sum<MOL1, MOL2>, Sum<CD1, CD2>
+        <M1 as Add<M2>>::Output,
+        <KG1 as Add<KG2>>::Output,
+        <S1 as Add<S2>>::Output,
+        <A1 as Add<A2>>::Output,
+        <K1 as Add<K2>>::Output,
+        <MOL1 as Add<MOL2>>::Output,
+        <CD1 as Add<CD2>>::Output
     >;
     
     /// Multiplies two units by adding their dimensional exponents
@@ -154,31 +145,29 @@ where
 impl<M1, M2, KG1, KG2, S1, S2, A1, A2, K1, K2, MOL1, MOL2, CD1, CD2> 
     Div<Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>> for Dimension<M1, KG1, S1, A1, K1, MOL1, CD1>
 where
-    M1: Integer + Sub<M2>,
+    M1: Integer + Sub<M2, Output: Integer>,
     M2: Integer,
-    KG1: Integer + Sub<KG2>,
+    KG1: Integer + Sub<KG2, Output: Integer>,
     KG2: Integer,
-    S1: Integer + Sub<S2>,
+    S1: Integer + Sub<S2, Output: Integer>,
     S2: Integer,
-    A1: Integer + Sub<A2>,
+    A1: Integer + Sub<A2, Output: Integer>,
     A2: Integer,
-    K1: Integer + Sub<K2>,
+    K1: Integer + Sub<K2, Output: Integer>,
     K2: Integer,
-    MOL1: Integer + Sub<MOL2>,
+    MOL1: Integer + Sub<MOL2, Output: Integer>,
     MOL2: Integer,
-    CD1: Integer + Sub<CD2>,
+    CD1: Integer + Sub<CD2, Output: Integer>,
     CD2: Integer,
-    Diff<M1, M2>: Integer,
-    Diff<KG1, KG2>: Integer,
-    Diff<S1, S2>: Integer,
-    Diff<A1, A2>: Integer,
-    Diff<K1, K2>: Integer,
-    Diff<MOL1, MOL2>: Integer,
-    Diff<CD1, CD2>: Integer,
 {
     type Output = Dimension<
-        Diff<M1, M2>, Diff<KG1, KG2>, Diff<S1, S2>,
-        Diff<A1, A2>, Diff<K1, K2>, Diff<MOL1, MOL2>, Diff<CD1, CD2>
+        <M1 as Sub<M2>>::Output,
+        <KG1 as Sub<KG2>>::Output,
+        <S1 as Sub<S2>>::Output,
+        <A1 as Sub<A2>>::Output,
+        <K1 as Sub<K2>>::Output,
+        <MOL1 as Sub<MOL2>>::Output,
+        <CD1 as Sub<CD2>>::Output,
     >;
     
     /// Divides two units by subtracting their dimensional exponents

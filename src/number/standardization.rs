@@ -1,4 +1,4 @@
-use super::basic::{Z0, P1, N1, B0, B1, NonNegOne, NonZero};
+use super::constant::{Z0, P1, N1, B0, B1, NonNegOne, NonZero};
 
 /// 处理 B0<H> 类型的标准化
 /// Standardization for B0<H> types

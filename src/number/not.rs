@@ -1,4 +1,4 @@
-use super::basic::{B0, B1, Z0, P1, N1, NonZero, NonNegOne};
+use super::constant::{B0, B1, Z0, P1, N1, NonZero, NonNegOne};
 use core::ops::Not;
 
 // ==================== 按位取反（!运算符） ====================

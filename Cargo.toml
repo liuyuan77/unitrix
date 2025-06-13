@@ -1,33 +1,18 @@
 [package]
 name = "unitrix" # 必须是唯一的，全crates.io范围内
-version = "0.0.4"
-description = "DEPRECATED: Use 'physunits' instead"
+version = "0.0.5"
+# Unitrix：通过常量化矩阵实现物理量单位化与2D几何计算规范化。提供零成本抽象，支持no_std环境。
+description = "Unitrix: Normalized physical unit management and 2D geometry computing through constified matrices. Delivers zero-cost abstractions with no_std support."
 edition = "2024"
 rust-version = "1.86.0" # 最低支持的 Rust 编译器版本
 authors = ["liuyuan <375798574@qq.com>"]
-# description = "A type-safe library for handling physical quantities with units."# 包的简短描述
-documentation = "https://docs.rs/physunits" # 包的在线文档地址（docs.rs 自动生成）
+documentation = "https://docs.rs/unitrix" # 包的在线文档地址（docs.rs 自动生成）
 # 项目源代码仓库地址（GitHub）
-repository = "https://github.com/liuyuan77/physunits"
+repository = "https://github.com/liuyuan77/unitrix"
 readme = "README.md"  # README 文件路径（用于 crates.io 展示）
-keywords = ["physunits", "SI", "units", "no_std"]  # 关键词列表,最多5个,用于 crates.io 搜索和分类
+keywords = ["unitrix", "SI", "units", "no_std"]  # 关键词列表,最多5个,用于 crates.io 搜索和分类
 categories = ["no-std", "science", "value-formatting"] # 包的分类（crates.io 分类）
 license = "MIT OR Apache-2.0"  # 必须使用SPDX标识符
 
-# 自动生成二进制目标（bin targets）
-autobins = true
-# 自动生成示例目标（example targets）
-autoexamples = true
-# 自动生成测试目标（test targets）
-autotests = true
-# 自动生成基准测试目标（benchmark targets）
-autobenches = true
-
-[dependencies]
-
-# 自动生成运算符重载
-# derive_more = { version = "2.0", features = ["full"] }
-
-
 [features]
-std = []          # 
+std = []

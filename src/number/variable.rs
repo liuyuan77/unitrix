@@ -4,7 +4,7 @@
  */
 
 use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign};
-use crate::constant::{N1, P1, B0, B1, Integer, NonZero};
+use crate::number::{N1, P1, B0, B1, Integer, NonZero};
 /// 定义 Numeric trait，约束 T 必须实现基本数值运算
 /// 包括：
 /// - 一元负号运算 (Neg)

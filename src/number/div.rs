@@ -1,8 +1,8 @@
 use core::ops::{Neg, Div};
 
-use super::basic::{Z0, B0, B1, P1, N1};
-use crate::constant::{Integer, NonZero};
-use crate::variable::{Var, Numeric};
+use super::constant::{Z0, B0, B1, P1, N1};
+use crate::number::{Integer, NonZero};
+use crate::number::{Var, Numeric};
 
 // ========== Basic Type Division Operations ==========
 // ========== 基本类型除法运算 ==========
@@ -200,10 +200,6 @@ impl<H1:NonZero, H2:NonZero> Div<B1<H2>> for B1<H1> {
         f64::from(B1::<H1>::to_i32()) / f64::from(B1::<H2>::to_i32())
     }
 }
-
-// Quotient type alias
-// 商类型别名
-pub type Quot<A, B> = <A as Div<B>>::Output;
 
 // ========== Division with Var<T> ==========
 // ========== 与Var<T>的除法运算 ==========

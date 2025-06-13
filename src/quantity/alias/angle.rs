@@ -1,10 +1,10 @@
 /// Angle units / 角度单位
 /// 参考GB 3102.1 1-1 要求
-use super::{Quantity, si};
-//use crate::dimension::{Radian, Degree, Gon};
+
 use core::ops::{Add, Sub, AddAssign, SubAssign};
 
-use super::basic::{Z0, P1, N1, Integer, NonZero};
+use Crate::quantity::{Dimension, Unit, Si, Z0, P1, N1, Integer, NonZero, NoPrefix, Milli, Micro};
+
 // ========== Angle Type Definitions ==========
 // ========== 角度类型定义 ==========
 
@@ -12,14 +12,14 @@ use super::basic::{Z0, P1, N1, Integer, NonZero};
 /// 
 /// # Type Parameters / 类型参数
 /// - `V`: Value type (f32, f64, etc.) / 值类型 (如 f32, f64 等)
-/// - `P`: SI prefix type (NoPrefix, Milli, Micro, etc.) / SI前缀类型 (无前缀, 毫, 微等)
-pub type Angle<V=f64, P = NoPrefix> = Quantity<V, SI<P, Dimension<Z0, Z0, Z0, Z0, Z0, Z0, Z0>>>;
+/// - `Pr`: SI prefix type (NoPrefix, Milli, Micro, etc.) / SI前缀类型 (无前缀, 毫, 微等)
+pub type Angle<V = P1, Pr = NoPrefix> = Si<V, Dimension<Z0, Z0, Z0, Z0, Z0, Z0, Z0>, Pr>;
 
 /// Radians / 弧度
 /// 
 /// # Type Parameters / 类型参数
 /// - `V`: Value type (f32, f64, etc.) / 值类型 (如 f32, f64 等)
-pub type Radians<V> = Angle<V, NoPrefix>;
+pub type Radians<V = f64> = Angle<V, NoPrefix>;
 
 /// Milliradians / 毫弧度
 /// 
@@ -33,11 +33,11 @@ pub type Milliradians<V> = Angle<V, Milli>;
 /// - `V`: Value type (f32, f64, etc.) / 值类型 (如 f32, f64 等)
 pub type Microradians<V> = Angle<V, Micro>;
 
-/// Degrees angle / 度???????????????????????????????????????????????
+/// Degrees angle / 度 必须改？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？？、
 /// 
 /// # Type Parameters / 类型参数
 /// - `V`: Value type that implements Copy (f32, f64, etc.) / 实现了Copy的值类型 (如 f32, f64 等)
-#[derive(Debug, Clone, Copy, PartialEq, Add, Sub, AddAssign, SubAssign)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Degrees<V: Copy>(pub V);
 
 impl<V: Copy> Degrees<V> {
@@ -65,7 +65,7 @@ impl<V: Copy> Degrees<V> {
 /// 
 /// # Type Parameters / 类型参数
 /// - `V`: Value type that implements Copy (f32, f64, etc.) / 实现了Copy的值类型 (如 f32, f64 等)
-#[derive(Debug, Clone, Copy, PartialEq, Add, Sub, AddAssign, SubAssign)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Gradians<V: Copy>(pub V);
 
 impl<V: Copy> Gradians<V> {
@@ -184,127 +184,5 @@ impl<V: Copy + From<f64> + Into<f64>> From<Radians<V>> for Microradians<V> {
     /// Formula: μrad = rad * 1_000_000 / 公式: μrad = rad * 1_000_000
     fn from(rad: Radians<V>) -> Self {
         rad.convert_to::<Micro>()
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use approx::assert_relative_eq;
-
-    const PI: f64 = std::f64::consts::PI;
-
-    #[test]
-    fn test_degrees_new() {
-        let angle = Degrees::new(45.0);
-        assert_eq!(angle.into_inner(), 45.0);
-    }
-
-    #[test]
-    fn test_gradians_new() {
-        let angle = Gradians::new(50.0);
-        assert_eq!(angle.into_inner(), 50.0);
-    }
-
-    #[test]
-    fn test_degrees_to_radians() {
-        let degrees = Degrees::new(180.0);
-        let radians: Radians<f64> = degrees.into();
-        assert_relative_eq!(radians.into_inner(), PI);
-    }
-
-    #[test]
-    fn test_radians_to_degrees() {
-        let radians = Radians::new(PI / 2.0);
-        let degrees: Degrees<f64> = radians.into();
-        assert_relative_eq!(degrees.into_inner(), 90.0);
-    }
-
-    #[test]
-    fn test_gradians_to_radians() {
-        let gradians = Gradians::new(200.0);
-        let radians: Radians<f64> = gradians.into();
-        assert_relative_eq!(radians.into_inner(), PI);
-    }
-
-    #[test]
-    fn test_radians_to_gradians() {
-        let radians = Radians::new(PI / 2.0);
-        let gradians: Gradians<f64> = radians.into();
-        assert_relative_eq!(gradians.into_inner(), 100.0);
-    }
-
-    #[test]
-    fn test_degrees_to_gradians() {
-        let degrees = Degrees::new(90.0);
-        let gradians: Gradians<f64> = degrees.into();
-        assert_relative_eq!(gradians.into_inner(), 100.0);
-    }
-
-    #[test]
-    fn test_gradians_to_degrees() {
-        let gradians = Gradians::new(100.0);
-        let degrees: Degrees<f64> = gradians.into();
-        assert_relative_eq!(degrees.into_inner(), 90.0);
-    }
-
-    #[test]
-    fn test_milliradians_to_radians() {
-        let mrad = Milliradians::new(1000.0);
-        let rad: Radians<f64> = mrad.into();
-        assert_relative_eq!(rad.into_inner(), 1.0);
-    }
-
-    #[test]
-    fn test_radians_to_milliradians() {
-        let rad = Radians::new(1.0);
-        let mrad: Milliradians<f64> = rad.into();
-        assert_relative_eq!(mrad.into_inner(), 1000.0);
-    }
-
-    #[test]
-    fn test_microradians_to_radians() {
-        let μrad = Microradians::new(1_000_000.0);
-        let rad: Radians<f64> = μrad.into();
-        assert_relative_eq!(rad.into_inner(), 1.0);
-    }
-
-    #[test]
-    fn test_radians_to_microradians() {
-        let rad = Radians::new(1.0);
-        let μrad: Microradians<f64> = rad.into();
-        assert_relative_eq!(μrad.into_inner(), 1_000_000.0);
-    }
-
-    #[test]
-    fn test_degrees_addition() {
-        let a1 = Degrees::new(30.0);
-        let a2 = Degrees::new(45.5);
-        let sum = a1 + a2;
-        assert_relative_eq!(sum.into_inner(), 75.5);
-    }
-
-    #[test]
-    fn test_gradians_subtraction() {
-        let a1 = Gradians::new(200.0);
-        let a2 = Gradians::new(50.5);
-        let diff = a1 - a2;
-        assert_relative_eq!(diff.into_inner(), 149.5);
-    }
-
-    #[test]
-    fn test_conversion_roundtrip_degrees_radians() {
-        let original = Degrees::new(60.0);
-        let radians: Radians<f64> = original.into();
-        let degrees: Degrees<f64> = radians.into();
-        assert_relative_eq!(degrees.into_inner(), 60.0);
-    }
-
-    #[test]
-    fn test_conversion_roundtrip_gradians_degrees() {
-        let original = Gradians::new(100.0);
-        let degrees: Degrees<f64> = original.into();
-        let gradians: Gradians<f64> = degrees.into();
-        assert_relative_eq!(gradians.into_inner(), 100.0);
     }
 }

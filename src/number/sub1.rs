@@ -5,8 +5,8 @@
 //!     3. B1<H> - 1，该位B0，无借位，原高位是Z0时要规范格式，即H=Z0时要特化，此时源码为B1<Z0>，已经被P1替代
 //!     4. 目前B1<Z0>已经用P1替换，高位H已经不可能为Z0，2条格式已经不存在，3条在H=P1时提前特化
 
-use super::basic::{B0, B1, Z0, P1, N1, NonZero, NonOne};
-use crate::variable::{Var,Numeric};
+use super::constant::{B0, B1, Z0, P1, N1, NonZero, NonOne};
+use crate::number::{Var,Numeric};
 /// 减一特质 / Decrement trait
 /// 
 /// 为类型系统提供减一操作的计算能力

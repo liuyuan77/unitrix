@@ -6,10 +6,9 @@ use core::marker::PhantomData;
 use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAssign};
 
 use crate::sealed::Sealed;
-use crate::constant::Prod;
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::variable::{Numeric, Scalar, Var};
+use crate::number::{Numeric, Scalar, Var};
 use super::Unitary;
 use super::Unit;
 use super::ratio::{NoRatio, Scaled};
@@ -187,7 +186,7 @@ where
     Pr1: Prefixed + Mul<Pr2,Output: Prefixed>,
     Pr2: Prefixed,
 {
-    type Output = Si< <V as Mul>::Output, Prod<D1, D2>, Prod<Pr1, Pr2> >;
+    type Output = Si< <V as Mul>::Output, <D1 as Mul<D2>>::Output, <Pr1 as Mul<Pr2>>::Output >;
     
     /// 乘法（量纲相乘，前缀相加）
     fn mul(self, rhs: Si<V, D2, Pr2>) -> Self::Output {

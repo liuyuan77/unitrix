@@ -7,9 +7,10 @@
 //! Provides all standard SI prefixes for unit conversion, handling only powers of 10.
 //! Includes both positive prefixes (da, h, k etc.) and negative prefixes (d, c, m etc.)
 
-use crate::constant::{Const, Diff, Integer, Sum};
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
+
+use crate::number::{Const, Integer};
 
 /// Prefix struct representing a power of 10
 /// 词头结构体，表示10的幂次
@@ -34,13 +35,8 @@ impl<I: Integer> Prefixed for Prefix<I>{}
 
 /// 实现词头乘法 (10^a * 10^b = 10^(a+b))
 /// Implements prefix multiplication (10^a * 10^b = 10^(a+b))
-impl<Ea, Eb> Mul<Prefix<Eb>> for Prefix<Ea>
-where
-    Ea: Integer + Add<Eb>,
-    Eb: Integer,
-    Sum<Ea, Eb>: Integer,
-{
-    type Output = Prefix<Sum<Ea, Eb>>;
+impl<Ea: Integer + Add<Eb,Output: Integer>, Eb: Integer> Mul<Prefix<Eb>> for Prefix<Ea>{
+    type Output = Prefix< <Ea as Add<Eb>>::Output >;
     
     fn mul(self, _: Prefix<Eb>) -> Self::Output {
         Prefix::new()
@@ -51,11 +47,10 @@ where
 /// Implements prefix division (10^a / 10^b = 10^(a-b))
 impl<Ea, Eb> Div<Prefix<Eb>> for Prefix<Ea>
 where
-    Ea: Integer + Sub<Eb>,
+    Ea: Integer + Sub<Eb,Output:Integer>,
     Eb: Integer,
-    Diff<Ea, Eb>: Integer,
 {
-    type Output = Prefix<Diff<Ea, Eb>>;
+    type Output = Prefix<<Ea as Sub<Eb>>::Output>;
     
     fn div(self, _: Prefix<Eb>) -> Self::Output {
         Prefix::new()
@@ -139,7 +134,6 @@ pub type Ronto = Prefix<Const<-27>>;
 
 /// 亏 / Quecto (10^-30)
 pub type Quecto = Prefix<Const<-30>>;
-
 
 
 /// 词头乘法结果类型 / Prefix multiplication result type

@@ -1,14 +1,13 @@
-# physunits · 物理单位库
+# unitrix · 单位算阵
 
-**Type-safe physical quantities with dimensional analysis**  
-**带量纲分析的类型安全物理量库**  
+**Unitrix: Normalized physical unit management and 2D geometry computing through constified matrices.
+Delivers zero-cost abstractions with no_std support.**  
+**单位算阵：通过常量化矩阵实现物理量单位化与2D几何计算规范化。
+提供零成本抽象，支持no_std环境。**  
 
-[![Crates.io](https://img.shields.io/crates/v/physunits)](https://crates.io/crates/physunits)
-[![Docs.rs](https://img.shields.io/docsrs/physunits)](https://docs.rs/physunits)
+[![Crates.io](https://img.shields.io/crates/v/unitrix)](https://crates.io/crates/unitrix)
+[![Docs.rs](https://img.shields.io/docsrs/unitrix)](https://docs.rs/unitrix)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
-A Rust library for safe unit operations /  
-Rust实现的类型安全单位计算库
 
 ## Key Advantages / 核心优势
 
@@ -32,7 +31,7 @@ Rust实现的类型安全单位计算库
 // 基础常量类型
 pub struct B0<H>(PhantomData<H>);  // 二进制0节点
 pub struct B1<H>(PhantomData<H>);  // 二进制1节点
-pub struct Z0;                     // 零值
+pub struct Z0;                     // 0
 pub struct P1;                     // +1
 pub struct N1;                     // -1
 
@@ -131,14 +130,14 @@ impl<V, D1, D2> Mul<Si<V, D2>> for Si<V, D1> {
 ### Basic Operations / 基础运算
 
 ```rust
-use physunits::{m, kg, s, N};
-
+use unitrix::quantity::*;
+use unitrix::Number::Var;
 // 常量计算
-let force = const（5） * kg * const(9) * m / (s * s);
+let force = Kilogram(const(5)) * Meter(const(9)) / (SECOND * SECOND);
 println!("Force: {} N", force.value());
 
 // 变量计算
-let mass = Var(5.0) * N;
+let mass = Newton(5.0);
 let acceleration = Var(9.0);
 let force = mass * acceleration;
 ```
@@ -146,10 +145,11 @@ let force = mass * acceleration;
 ### Mixed Calculation / 混合计算
 
 ```rust
-use physunits::{consts::*, Var};
+use unitrix::Number::*;
+use unitrix::quantity::*;
 
 // 编译时常量与运行时变量混合运算
-let G = Const(6) * m3 / (kg * s * s);
+let G = Const(6) * METER*METER*METER / (KILOGRAM * SECOND * SECOND);
 let m1 = Var(5.972e24);  // 地球质量 (kg)
 let m2 = Var(7.342e22);  // 月球质量 (kg)
 let r = Var(3.844e8);    // 地月距离 (m)
@@ -161,7 +161,7 @@ println!("Gravitational force: {} N", f.value());
 ### Temperature Conversion / 温度转换
 
 ```rust
-use physunits::{Celsius, Fahrenheit};
+use unitrix::quantity::{Celsius, Fahrenheit};
 
 let boiling = quantity::Si::<f64, Celsius>::new(100.0);
 let fahr = boiling.convert::<Fahrenheit>();
@@ -179,6 +179,7 @@ let distance = speed * time;  // 自动推导为km单位
 ## Advanced Features / 高级特性
 
 1. 常量计算系统
+
 + 二进制编码的常量类型 (B0, B1)
 
 + 基础常量值 (Z0, P1, N1)
@@ -209,30 +210,20 @@ let distance = speed * time;  // 自动推导为km单位
 
 ## Comparison / 对比
 
-| Feature         | PhysUnits | uom   | nalgebra |
-|----------------|----------|-------|----------|
-|Dim Safety	    |✅	| ✅ | ❌ |
-|Integer Support|✅	| ⚠️ | ❌ |
-|Runtime Prefix	|✅	| ❌ | ❌ |
-|No Deps	    |✅	| ❌ | ❌ |
-|Const Math	    |✅	| ⚠️ | ❌ |
-|Var Bridge	    |✅	| ❌ | ❌ |
-
-
-| 特性          | PhysUnits | uom   | nalgebra |
+| Feature/特性          | unitrix | uom   | nalgebra |
 |--------------|----------|-------|----------|
-| 量纲安全	 | ✅ | ✅ | ❌ |
-| 整数支持	 | ✅ | ⚠️ | ❌ |
-| 运行时词头 | ✅ | ❌ | ❌ |
-| 无依赖	 | ✅ | ❌ | ❌ |
-| 常量计算	 | ✅ | ⚠️ | ❌ |
-| 变量桥接	 | ✅ | ❌ | ❌ |
+| Dim Safety/量纲安全      | ✅ | ✅ | ❌ |
+| Integer Support/整数支持 | ✅ | ⚠️ | ❌ |
+| Runtime Prefix/运行时词头 | ✅ | ❌ | ❌ |
+| No Deps/无依赖           | ✅ | ❌ | ❌ |
+| Const Math/常量计算      | ✅ | ⚠️ | ❌ |
+| Var Bridge/变量桥接      | ✅ | ❌ | ❌ |
 
 ## Installation / 安装
 
 ```toml
 [dependencies]
-physunits = "0.0.4"
+unitrix = "0.0.5"
 ```
 
 ## Contributing / 贡献指南
@@ -241,12 +232,12 @@ We welcome issues and PRs! / 欢迎提交 Issue 和 PR！
 
 Key needs: / 重点需求：
 
-- More unit definitions / 更多单位定义
++ More unit definitions / 更多单位定义
 
-- Real-world physics test cases / 实际物理测试案例
++ Real-world physics test cases / 实际物理测试案例
 
-- Better error messages / 更好的错误提示
++ Better error messages / 更好的错误提示
 
-- Constant calculation optimization / 常量计算优化
++ Constant calculation optimization / 常量计算优化
 
-- WASM compatibility / WASM兼容性
++ WASM compatibility / WASM兼容性

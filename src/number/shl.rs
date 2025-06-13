@@ -1,4 +1,4 @@
-use super::basic::{Z0, P1, N1, B0, B1, NonZero, NonOne, Unsigned};
+use super::constant::{Z0, P1, N1, B0, B1, NonZero, NonOne, Unsigned};
 use super::sub1::Sub1;
 use core::ops::Shl;
 

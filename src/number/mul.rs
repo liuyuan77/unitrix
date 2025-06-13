@@ -1,6 +1,6 @@
 use core::ops::{Add, Mul, Neg};
-use super::basic::{Z0, P1, N1, B0, B1, Integer, NonZero};
-use crate::variable::{Var,Numeric};
+use super::constant::{Z0, P1, N1, B0, B1, Integer, NonZero};
+use crate::number::{Var,Numeric};
 
 // ========== Basic Type Multiplication ==========
 // ========== 基本类型乘法 ==========
@@ -96,10 +96,6 @@ impl<H: NonZero + Mul<I>, I: NonZero + Add<B0<<H as Mul<I>>::Output>>> Mul<I> fo
         i + B0::new()  // I + B0<H*I>
     }
 }
-
-/// Type alias for multiplication: `Prod<A, B> = <A as Mul<B>>::Output`
-/// 乘法运算的类型别名：`Prod<A, B> = <A as Mul<B>>::Output`
-pub type Prod<A, B> = <A as Mul<B>>::Output;
 
 // ========== 与Var<T>乘法 ==========
 // ========== 0 * Var<T> ==========

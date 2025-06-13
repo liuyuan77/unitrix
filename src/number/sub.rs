@@ -1,9 +1,9 @@
 use core::ops::{Neg, Not, Sub};
-use super::basic::{Z0, N1, P1, B0, B1, Integer, NonZero};
+use super::constant::{Z0, N1, P1, B0, B1, Integer, NonZero};
 use super::add1::Add1;
 use super::sub1::Sub1;
 use super::standardization::{IfB0, IfB1};
-use crate::variable::{Var,Numeric};
+use crate::number::{Var,Numeric};
 
 // ==================== 带借位减法 Trait ====================
 /// 带借位减法运算
@@ -225,35 +225,24 @@ where
     }
 }
 
-
 // B1 - B0
-impl<H1: NonZero + Sub<H2>, H2: NonZero> Sub<B0<H2>> for B1<H1>
-where
-    Diff<H1, H2>: IfB1,
-{
+impl<H1: NonZero + Sub<H2,Output: IfB1>, H2: NonZero> Sub<B0<H2>> for B1<H1>{
     type Output = <H1::Output as IfB1>::Output;
     #[inline(always)]
     fn sub(self, _: B0<H2>) -> Self::Output {
-        <Diff<H1, H2> as IfB1>::b1()
+        < <H1 as Sub<H2>>::Output as IfB1 >::b1()
     }
 }
 
 // B1 - B1
-impl<H1: NonZero + Sub<H2>, H2: NonZero> Sub<B1<H2>> for B1<H1>
-where
-    Diff<H1, H2>: IfB0,
-{
+impl<H1: NonZero + Sub<H2,Output: IfB0>, H2: NonZero> Sub<B1<H2>> for B1<H1>{
     type Output = <H1::Output as IfB0>::Output;
     #[inline(always)]
     fn sub(self, _: B1<H2>) -> Self::Output {
         // 获取 H1 - H2 的结果类型
-        <Diff<H1, H2> as IfB0>::b0()
+        < <H1 as Sub<H2> >::Output as IfB0>::b0()
     }
 }
-
-
-/// 减法运算的类型别名：`Diff<A, B> = <A as Sub<B>>::Output`
-pub type Diff<A, B> = <A as Sub<B>>::Output;
 
 // ==================== 与Var<T>运算符重载 ====================
 
@@ -275,8 +264,6 @@ impl<T: Numeric> Sub<Var<T>> for P1{
         Var(1.into()) - rhs
     }
 }
-
-
 
 // ==================== N1 - Var<T> ====================
 impl<T: Numeric> Sub<Var<T>> for N1

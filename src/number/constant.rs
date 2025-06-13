@@ -38,7 +38,7 @@ impl Sealed for N1 {}
 
 // ========== 标记特质定义 ==========
 pub trait Integer: Default+Sealed + Copy + Default + 'static {
-    fn to_i32() -> i32;//新补充的方法
+    fn to_i32() -> i32;
 }
 pub trait NonZero: Integer {}
 pub trait NonOne: Integer {}

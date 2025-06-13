@@ -1,5 +1,5 @@
 use core::ops::{Not, Neg};
-use super::basic::{B0, B1, Z0, P1, N1, NonZero};
+use super::constant::{B0, B1, Z0, P1, N1, NonZero};
 
 // ==================== 算术取负（-运算符） ====================
 impl Neg for Z0 { // Z0 (0) 的取负
@@ -36,5 +36,3 @@ impl<H: NonZero + Not> Neg for B1<H>{
         B0::new()
     }
 }
-
-pub type Negate<A> = <A as Neg>::Output;
