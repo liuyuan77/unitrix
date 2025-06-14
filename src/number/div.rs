@@ -1,6 +1,6 @@
 use core::ops::{Neg, Div};
 
-use super::constant::{Z0, B0, B1, P1, N1};
+use crate::number::{Z0, B0, B1, P1, N1};
 use crate::number::{Integer, NonZero};
 use crate::number::{Var, Numeric};
 

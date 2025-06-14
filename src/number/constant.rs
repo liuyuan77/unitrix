@@ -1,5 +1,6 @@
-use crate::sealed::Sealed;
 use core::marker::PhantomData;
+
+use crate::sealed::Sealed;
 
 // ========== 基础类型定义 ==========
 #[derive(Eq, PartialEq, Clone, Copy, Debug)]
@@ -37,7 +38,7 @@ impl Sealed for P1 {}
 impl Sealed for N1 {}
 
 // ========== 标记特质定义 ==========
-pub trait Integer: Default+Sealed + Copy + Default + 'static {
+pub trait Integer: Default+Sealed + Copy + 'static {
     fn to_i32() -> i32;
 }
 pub trait NonZero: Integer {}

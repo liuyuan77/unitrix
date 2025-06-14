@@ -1,5 +1,5 @@
 use core::ops::{Add, Mul, Neg};
-use super::constant::{Z0, P1, N1, B0, B1, Integer, NonZero};
+use crate::number::{Z0, P1, N1, B0, B1, Integer, NonZero};
 use crate::number::{Var,Numeric};
 
 // ========== Basic Type Multiplication ==========

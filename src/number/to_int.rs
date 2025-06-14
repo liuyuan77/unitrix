@@ -1,4 +1,4 @@
-use super::constant::{Z0, P1, N1, B0, B1};
+use crate::number::{Z0, P1, N1, B0, B1};
 /// Type-level integer alias
 /// 类型级整数别名
 /// 

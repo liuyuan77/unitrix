@@ -1,5 +1,5 @@
 use core::ops::{Neg, Not, Sub};
-use super::constant::{Z0, N1, P1, B0, B1, Integer, NonZero};
+use crate::number::{Z0, N1, P1, B0, B1, Integer, NonZero};
 use super::add1::Add1;
 use super::sub1::Sub1;
 use super::standardization::{IfB0, IfB1};
