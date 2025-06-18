@@ -1,17 +1,9 @@
 use core::ops::BitAnd;
-use crate::number::{B0, B1, Z0, P1, N1, NonZero, Integer, IfB0, IfB1};
+use crate::number::{B0, B1, Z0, P1, N1, NonZero, TypedInt, IfB0, IfB1};
 
 // ==================== 按位与（&运算符） ====================
 
-// ==================== Z0 & All ====================
-// Z0 & 整数
-impl<I: Integer> BitAnd<I> for Z0 {
-    type Output = Z0;
-    #[inline(always)]
-    fn bitand(self, _rhs: I) -> Self::Output {
-        Z0
-    }
-}
+
 
 // ==================== P1 & All ====================
 // P1 & Z0
@@ -55,7 +47,7 @@ impl<H: NonZero> BitAnd<B1<H>> for P1 {
 }
 
 // ==================== N1 & All ====================
-impl<I: Integer> BitAnd<I> for N1 {
+impl<I: TypedInt> BitAnd<I> for N1 {
     type Output = I;
     #[inline(always)]
     fn bitand(self, rhs: I) -> Self::Output {

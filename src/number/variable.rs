@@ -1,20 +1,23 @@
 /*
  * 变量结构体 Var
- * 该结构体泛型参数 T 需满足 Numeric 约束
+ * 该结构体泛型参数 T 需满足 Primitive 约束
  */
 
 use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign};
-use crate::number::{N1, P1, B0, B1, Integer, NonZero};
-/// 定义 Numeric trait，约束 T 必须实现基本数值运算
+use crate::number::{N1, P1, B0, B1, TypedInt, NonZero, Var};
+
+
+
+
+/// 定义 Primitive trait，约束 Var泛型参数 T 必须实现基本数值运算
 /// 包括：
 /// - 一元负号运算 (Neg)
 /// - 加减乘除运算 (Add, Sub, Mul, Div)
 /// - 复合赋值运算 (AddAssign, SubAssign)
-/// - 从i32转换 (From<i32>)
 /// - 复制语义 (Copy, Clone)
 /// - 默认值 (Default)
 /// - 静态生命周期 ('static)
-pub trait Numeric:
+pub trait Primitive:
     Neg<Output = Self> +
     Add<Output = Self> +
     Sub<Output = Self> +
@@ -22,52 +25,33 @@ pub trait Numeric:
     Div<Output = Self> +
     AddAssign +
     SubAssign +
-    From<i32> +
     Copy +
     Clone +
     Default +
+    From<i32> + // 后期取消
     Sized +
     'static
 {}
 
-// 为基本类型实现 Numeric trait
-impl Numeric for i64 {} // i64 类型实现 Numeric
-impl Numeric for f64 {} // f64 类型实现 Numeric
+// 为基本类型实现 Primitive trait
+impl Primitive for i32 {} // i64 类型实现 Primitive
+impl Primitive for i64 {} // i64 类型实现 Primitive
+// impl Primitive for f32 {} // f64 类型实现 Primitive
+impl Primitive for f64 {} // f64 类型实现 Primitive
 
-/// 定义 Scalar trait，用于物理量取值
-/// 在 Numeric 基础上增加了 MulAssign 约束
-pub trait Scalar:
-    Neg<Output = Self> +
-    Add<Output = Self> +
-    Sub<Output = Self> +
-    Mul<Output = Self> +
-    Div<Output = Self> +
-    AddAssign +
-    SubAssign +
-    MulAssign +
-    From<i32> +
-    Copy +
-    Clone +
-    Default +
-    Sized +
-    'static
-{}
 
-// 为 Var 类型实现 Scalar trait
-impl Scalar for Var<i64> {} // Var<i64> 实现 Scalar
-impl Scalar for Var<f64> {} // Var<f64> 实现 Scalar
 
-/// 变量结构体，封装一个泛型值 T
-/// T 需要满足 Numeric 约束
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
-pub struct Var<T: Numeric>(pub T);
+
+
+
+
 
 // 运算符重载实现
 // =============================================
 
 /// 实现 Var 的取反运算
 /// 用法: -V
-impl<T: Numeric> Neg for Var<T> {
+impl<T: Primitive> Neg for Var<T> {
     type Output = Self;
 
     fn neg(self) -> Self::Output {
@@ -77,7 +61,7 @@ impl<T: Numeric> Neg for Var<T> {
 
 /// 实现 Var 与 Var 的加法运算
 /// 用法: V + V
-impl<T: Numeric> Add for Var<T> {
+impl<T: Primitive> Add for Var<T> {
     type Output = Self;
 
     fn add(self, b: Self) -> Self::Output {
@@ -87,7 +71,7 @@ impl<T: Numeric> Add for Var<T> {
 
 /// 实现 Var 与 Var 的减法运算
 /// 用法: V - V
-impl<T: Numeric> Sub for Var<T> {
+impl<T: Primitive> Sub for Var<T> {
     type Output = Self;
 
     fn sub(self, b: Self) -> Self::Output {
@@ -97,7 +81,7 @@ impl<T: Numeric> Sub for Var<T> {
 
 /// 实现 Var 与 Var 的乘法运算
 /// 用法: V * V
-impl<T: Numeric> Mul<Var<T>> for Var<T> {
+impl<T: Primitive> Mul<Var<T>> for Var<T> {
     type Output = Self;
 
     fn mul(self, b: Self) -> Self::Output {
@@ -107,7 +91,7 @@ impl<T: Numeric> Mul<Var<T>> for Var<T> {
 
 /// 实现 Var 与 Var 的除法运算
 /// 用法：V / V
-impl<T: Numeric> Div<Var<T>> for Var<T> {
+impl<T: Primitive> Div<Var<T>> for Var<T> {
     type Output = Self;
 
     fn div(self, b: Self) -> Self::Output {
@@ -117,7 +101,7 @@ impl<T: Numeric> Div<Var<T>> for Var<T> {
 
 /// 实现 Var 的加法赋值运算
 /// 用法: V += V
-impl<T: Numeric> AddAssign for Var<T> {
+impl<T: Primitive> AddAssign for Var<T> {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;  // 直接转发到底层类型的 += 运算
     }
@@ -125,7 +109,7 @@ impl<T: Numeric> AddAssign for Var<T> {
 
 /// 实现 Var 的减法赋值运算
 /// 用法: V -= V
-impl<T: Numeric> SubAssign for Var<T> {
+impl<T: Primitive> SubAssign for Var<T> {
     fn sub_assign(&mut self, rhs: Self) {
         self.0 -= rhs.0;  // 直接转发到底层类型的 -= 运算
     }
@@ -136,7 +120,7 @@ impl<T: Numeric> SubAssign for Var<T> {
 
 /// 实现 Var 与常量的加法运算
 /// 用法: V + C
-impl<T: Numeric, C: Integer + Add<Var<T>>> Add<C> for Var<T> {
+impl<T: Primitive, C: TypedInt + Add<Var<T>>> Add<C> for Var<T> {
     type Output = <C as Add<Var<T>>>::Output;
 
     fn add(self, c:C) -> Self::Output {
@@ -146,7 +130,7 @@ impl<T: Numeric, C: Integer + Add<Var<T>>> Add<C> for Var<T> {
 
 /// 实现 Var 与常量的减法运算
 /// 用法: V - C
-impl<T: Numeric, C: Integer + Neg> Sub<C> for Var<T>
+impl<T: Primitive, C: TypedInt + Neg> Sub<C> for Var<T>
 where 
     <C as Neg>::Output: Add<Var<T>>,
 {
@@ -159,7 +143,7 @@ where
 
 /// 实现 Var 与常量的乘法运算
 /// 用法: V * C
-impl<T: Numeric, C:Integer + Mul<Var<T>>> Mul<C> for Var<T> {
+impl<T: Primitive, C:TypedInt + Mul<Var<T>>> Mul<C> for Var<T> {
     type Output = <C as Mul<Var<T>>>::Output;
 
     fn mul(self, c: C) -> Self::Output {
@@ -172,7 +156,7 @@ impl<T: Numeric, C:Integer + Mul<Var<T>>> Mul<C> for Var<T> {
 /// V / 0 未实现
 
 /// V / 1 = V
-impl<T: Numeric> Div<P1> for Var<T> {
+impl<T: Primitive> Div<P1> for Var<T> {
     type Output = Self;
 
     fn div(self, _rhs: P1) -> Self::Output {
@@ -181,7 +165,7 @@ impl<T: Numeric> Div<P1> for Var<T> {
 }
 
 /// V / -1 = -V
-impl<T: Numeric> Div<N1> for Var<T> {
+impl<T: Primitive> Div<N1> for Var<T> {
     type Output = Self;
 
     fn div(self, _rhs: N1) -> Self::Output {
@@ -190,9 +174,9 @@ impl<T: Numeric> Div<N1> for Var<T> {
 }
 
 /// V / B0
-impl<H: NonZero, T:Numeric> Div<B0<H>> for Var<T>
+impl<H: NonZero + Default, T:Primitive> Div<B0<H>> for Var<T>
 where 
-    B0<H>: Integer,
+    B0<H>: TypedInt,
     Var<T>: Div<Var<T>,Output = Var<T>>,
 {
     type Output = Var<T>;
@@ -203,9 +187,9 @@ where
 }
 
 /// V / B1
-impl<H: NonZero, T:Numeric> Div<B1<H>> for Var<T>
+impl<H: NonZero + Default, T:Primitive> Div<B1<H>> for Var<T>
 where 
-    B1<H>: Integer,
+    B1<H>: TypedInt,
     Var<T>: Div<Var<T>,Output = Var<T>>,
 {
     type Output = Var<T>;
@@ -248,7 +232,7 @@ impl From<f64> for Var<f64> {
 
 /// 实现 Var 的乘法赋值运算
 /// 用法: V *= V
-impl<T: Numeric + MulAssign> MulAssign for Var<T> {
+impl<T: Primitive + MulAssign> MulAssign for Var<T> {
     fn mul_assign(&mut self, rhs: Self) {
         self.0 *= rhs.0; // 直接转发到底层类型的 *= 运算
     }
@@ -256,7 +240,7 @@ impl<T: Numeric + MulAssign> MulAssign for Var<T> {
 
 /// 实现 Var 与底层类型的乘法赋值运算
 /// 用法: V *= T
-impl<T: Numeric + MulAssign> MulAssign<T> for Var<T> {
+impl<T: Primitive + MulAssign> MulAssign<T> for Var<T> {
     fn mul_assign(&mut self, rhs: T) {
         self.0 *= rhs; // 直接使用底层类型的 *= 运算
     }

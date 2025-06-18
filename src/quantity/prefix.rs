@@ -10,14 +10,14 @@
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
 
-use crate::number::{Const, Integer};
+use crate::number::{Const, TypedInt};
 
 /// Prefix struct representing a power of 10
 /// 词头结构体，表示10的幂次
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Prefix<Exp: Integer>(PhantomData<Exp>);
+pub struct Prefix<Exp: TypedInt>(PhantomData<Exp>);
 
-impl<Exp: Integer> Prefix<Exp> {
+impl<Exp: TypedInt> Prefix<Exp> {
     /// Create a new Prefix instance
     /// 创建一个新的词头实例
     pub fn new() -> Self {
@@ -28,14 +28,14 @@ impl<Exp: Integer> Prefix<Exp> {
 /// Prefixed trait defines operations related to SI prefixes
 /// SI词头特质定义了与SI词头相关的操作
 pub trait Prefixed {}
-impl<I: Integer> Prefixed for Prefix<I>{}
+impl<I: TypedInt> Prefixed for Prefix<I>{}
 
 // ========== 基本操作实现 ==========
 // ========== Basic Operations Implementation ==========
 
 /// 实现词头乘法 (10^a * 10^b = 10^(a+b))
 /// Implements prefix multiplication (10^a * 10^b = 10^(a+b))
-impl<Ea: Integer + Add<Eb,Output: Integer>, Eb: Integer> Mul<Prefix<Eb>> for Prefix<Ea>{
+impl<Ea: TypedInt + Add<Eb,Output: TypedInt>, Eb: TypedInt> Mul<Prefix<Eb>> for Prefix<Ea>{
     type Output = Prefix< <Ea as Add<Eb>>::Output >;
     
     fn mul(self, _: Prefix<Eb>) -> Self::Output {
@@ -47,8 +47,8 @@ impl<Ea: Integer + Add<Eb,Output: Integer>, Eb: Integer> Mul<Prefix<Eb>> for Pre
 /// Implements prefix division (10^a / 10^b = 10^(a-b))
 impl<Ea, Eb> Div<Prefix<Eb>> for Prefix<Ea>
 where
-    Ea: Integer + Sub<Eb,Output:Integer>,
-    Eb: Integer,
+    Ea: TypedInt + Sub<Eb,Output:TypedInt>,
+    Eb: TypedInt,
 {
     type Output = Prefix<<Ea as Sub<Eb>>::Output>;
     

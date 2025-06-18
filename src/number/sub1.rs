@@ -6,7 +6,7 @@
 //!     4. 目前B1<Z0>已经用P1替换，高位H已经不可能为Z0，2条格式已经不存在，3条在H=P1时提前特化
 
 use crate::number::{B0, B1, Z0, P1, N1, NonZero, NonOne};
-use crate::number::{Var,Numeric};
+use crate::number::{Var,Primitive};
 /// 减一特质 / Decrement trait
 /// 
 /// 为类型系统提供减一操作的计算能力
@@ -56,7 +56,7 @@ impl Sub1 for N1 {
 /// 
 /// 处理借位情况 / Handles borrow case
 /// ...0 -1 = ...1(高位借位) / ...0 -1 = ...1(with borrow)
-impl<H: NonZero + NonOne + Sub1> Sub1 for B0<H>{//引入P1后，高位不可能是Z0
+impl<H: NonZero + NonOne + Sub1<Output: NonZero>> Sub1 for B0<H>{//引入P1后，高位不可能是Z0
     type Output = B1<H::Output>;
     #[inline(always)]
     fn sub1(self) -> Self::Output{
@@ -68,7 +68,7 @@ impl<H: NonZero + NonOne + Sub1> Sub1 for B0<H>{//引入P1后，高位不可能�
 /// 
 /// 直接减一无需借位 / Direct decrement without borrow
 /// ...1 -1 = ...0 / ...1 -1 = ...0
-impl<H: NonZero + NonOne> Sub1 for B1<H>{//引入P1后，高位不可能是Z0
+impl<H: NonZero + NonOne + Default> Sub1 for B1<H>{//引入P1后，高位不可能是Z0
     type Output = B0<H>;
     #[inline(always)]
     fn sub1(self) -> Self::Output{
@@ -99,7 +99,7 @@ impl Sub1 for B0<P1>{
 pub type SubOne<I> = <I as Sub1>::Output;
 
 /// Val<T> - 1
-impl<T:Numeric> Sub1 for Var<T> {
+impl<T:Primitive> Sub1 for Var<T> {
     type Output = Self;
     #[inline(always)]
     fn sub1(self) -> Self::Output{

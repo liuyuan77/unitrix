@@ -1,27 +1,13 @@
 use core::ops::{Neg, Div};
 
-use crate::number::{Z0, B0, B1, P1, N1};
-use crate::number::{Integer, NonZero};
-use crate::number::{Var, Numeric};
+use crate::number::{B0, B1, P1, N1};
+use crate::number::{TypedInt, NonZero};
+use crate::number::{Var, Primitive};
 
 // ========== Basic Type Division Operations ==========
 // ========== 基本类型除法运算 ==========
 
-// ========== 0 / All ===========
-// Division of zero by any non-zero type
-// 0 除以任何非零类型
 
-// 0 / 0 is illegal and not implemented
-// 0 / 0 非法，未实现
-
-// 0 / NonZero = 0
-impl<I: NonZero> Div<I> for Z0 {
-    type Output = Self;
-    #[inline(always)]
-    fn div(self, _rhs: I) -> Self::Output {
-        self  // 0 / any non-zero = 0
-    }
-}
 
 // ========== 1 / All ===========
 // Division of one by various types
@@ -204,17 +190,9 @@ impl<H1:NonZero, H2:NonZero> Div<B1<H2>> for B1<H1> {
 // ========== Division with Var<T> ==========
 // ========== 与Var<T>的除法运算 ==========
 
-// ========== 0 / Var<T> ==========
-impl<T: Numeric + PartialEq> Div<Var<T>> for Z0 {
-    type Output = Self;
-    fn div(self, rhs: Var<T>) -> Self::Output {
-        assert!(rhs.0 != T::from(0), "division by zero");
-        self
-    }
-}
 
 // ========== 1 / Var<T> ==========
-impl<T: Numeric> Div<Var<T>> for P1 {
+impl<T: Primitive> Div<Var<T>> for P1 {
     type Output = Var<T>;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
@@ -223,7 +201,7 @@ impl<T: Numeric> Div<Var<T>> for P1 {
 }
 
 // ========== -1 / Var<T> ==========
-impl<T: Numeric> Div<Var<T>> for N1{
+impl<T: Primitive> Div<Var<T>> for N1{
     type Output = <Var<T> as Neg>::Output;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
@@ -232,9 +210,9 @@ impl<T: Numeric> Div<Var<T>> for N1{
 }
 
 // ========== B0 / Var<T> ==========
-impl<H: NonZero, T:Numeric> Div<Var<T>> for B0<H>
+impl<H: NonZero, T:Primitive> Div<Var<T>> for B0<H>
 where 
-    B0<H>: Integer,
+    B0<H>: TypedInt,
     Var<T>: Div<Var<T>>,
 {
     type Output = Var<T>;
@@ -246,9 +224,9 @@ where
 
 // ========== B1 / Var<T> ==========
 
-impl<H: NonZero, T:Numeric> Div<Var<T>> for B1<H>
+impl<H: NonZero, T: Primitive> Div<Var<T>> for B1<H>
 where 
-    B1<H>: Integer,
+    B1<H>: TypedInt,
     Var<T>: Div<Var<T>>,
 {
     type Output = Var<T>;

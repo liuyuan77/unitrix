@@ -4,11 +4,28 @@
 //! 正数和负数有不同的表示规则，详见下面的文档说明。
 
 mod types;
-pub(crate) use types::*;
+pub(super) use types::*;
+
+mod types1;
+pub(super) use types1::*;
 
 // 基本体及特质
-mod constant;
-pub(super) use constant::*;
+mod traits;
+pub use traits::*;
+
+mod var_traits;
+pub use var_traits::*;
+
+
+pub mod special;
+// pub mod not_a_number;
+// pub mod positive_infinity;
+pub mod z0;
+
+
+
+
+
 
 mod variable;
 pub use variable::*;

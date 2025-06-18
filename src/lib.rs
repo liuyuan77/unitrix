@@ -27,7 +27,8 @@
 //!   - [`matrix`] - 单位感知的2D变换
 //! - [`number`] - Numeric type foundations
 //!   - [`number`] - 数值类型基础
-
+//! 
+#![recursion_limit = "256"]
 #![no_std] // 不依赖标准库
 #![forbid(unsafe_code)] // 禁止不安全代码，保证内存安全
 // #![deny(missing_docs)]  // 无条件使用注释文档

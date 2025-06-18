@@ -1,17 +1,8 @@
 use core::ops::{BitXor,Not};
-use crate::number::{B0, B1, Z0, P1, N1, NonZero, Integer, IfB0, IfB1};
+use crate::number::{B0, B1, Z0, P1, N1, NonZero, TypedInt, IfB0, IfB1};
 
 // ==================== 按位异或（^运算符） ====================
 
-// ==================== Z0 ^ All ====================
-// Z0 ^ 整数
-impl<I: Integer> BitXor<I> for Z0 {
-    type Output = I;
-    #[inline(always)]
-    fn bitxor(self, rhs: I) -> Self::Output {
-        rhs
-    }
-}
 
 // ==================== P1 ^ All ====================
 // P1 ^ Z0
@@ -56,7 +47,7 @@ impl<H: NonZero + IfB0> BitXor<B1<H>> for P1 {
 
 // ==================== N1 ^ All ====================
 // N1 ^ All
-impl<I: Integer + Not> BitXor<I> for N1 {
+impl<I: TypedInt + Not> BitXor<I> for N1 {
     type Output = <I as Not>::Output;
     fn bitxor(self, rhs: I) -> Self::Output {
         !rhs

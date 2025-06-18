@@ -9,7 +9,7 @@
 //! 本模块提供类型安全的物理单位表示，利用Rust类型系统在编译时强制量纲正确性
 
 use crate::sealed::Sealed;
-use crate::number::{Z0, Integer};
+use crate::number::{Z0, TypedInt};
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
 
@@ -32,13 +32,13 @@ use core::ops::{Add, Sub, Mul, Div};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Dimension<
-    METER: Integer,
-    KILOGRAM: Integer,
-    SECOND: Integer,
-    AMPERE: Integer,
-    KELVIN: Integer,
-    MOLE: Integer,
-    CANDELA: Integer
+    METER: TypedInt,
+    KILOGRAM: TypedInt,
+    SECOND: TypedInt,
+    AMPERE: TypedInt,
+    KELVIN: TypedInt,
+    MOLE: TypedInt,
+    CANDELA: TypedInt
 >(
     PhantomData<(METER, KILOGRAM, SECOND, AMPERE, KELVIN, MOLE, CANDELA)>
 );
@@ -51,18 +51,18 @@ pub struct Dimension<
 /// 该trait是密封的，不能在本crate外实现
 pub trait Dimensional: Sealed+Sized {}
 
-impl<M: Integer, KG: Integer, S: Integer, A: Integer, K: Integer, MOL: Integer, CD: Integer>
+impl<M: TypedInt, KG: TypedInt, S: TypedInt, A: TypedInt, K: TypedInt, MOL: TypedInt, CD: TypedInt>
     Sealed for Dimension<M, KG, S, A, K, MOL, CD>{
 }
 
-impl<M: Integer, KG: Integer, S: Integer, A: Integer, K: Integer, MOL: Integer, CD: Integer>
+impl<M: TypedInt, KG: TypedInt, S: TypedInt, A: TypedInt, K: TypedInt, MOL: TypedInt, CD: TypedInt>
     Dimensional for Dimension<M, KG, S, A, K, MOL, CD>{
 }
 
 /// Creates a new unit instance
 /// 创建新的单位实例
 ///
-impl<M: Integer, KG: Integer, S: Integer, A: Integer, K: Integer, MOL: Integer, CD: Integer>
+impl<M: TypedInt, KG: TypedInt, S: TypedInt, A: TypedInt, K: TypedInt, MOL: TypedInt, CD: TypedInt>
 Dimension<M, KG, S, A, K, MOL, CD>{
     /// Creates a new unit instance
     /// 创建新的单位实例
@@ -71,7 +71,7 @@ Dimension<M, KG, S, A, K, MOL, CD>{
     }
 }
 
-impl<M: Integer, KG: Integer, S: Integer, A: Integer, K: Integer, MOL: Integer, CD: Integer>
+impl<M: TypedInt, KG: TypedInt, S: TypedInt, A: TypedInt, K: TypedInt, MOL: TypedInt, CD: TypedInt>
 Dimension<M, KG, S, A, K, MOL, CD>{
     /// Raises the unit to the power of `N`
     /// 将单位提升到幂次 `N`
@@ -85,14 +85,14 @@ Dimension<M, KG, S, A, K, MOL, CD>{
         <CD as Mul<N>>::Output,
     >
     where
-        N: Integer,
-        M: Mul<N, Output: Integer>,
-        KG: Mul<N, Output: Integer>,
-        S: Mul<N, Output: Integer>,
-        A: Mul<N, Output: Integer>,
-        K: Mul<N, Output: Integer>,
-        MOL: Mul<N, Output: Integer>,
-        CD: Mul<N, Output: Integer>,
+        N: TypedInt,
+        M: Mul<N, Output: TypedInt>,
+        KG: Mul<N, Output: TypedInt>,
+        S: Mul<N, Output: TypedInt>,
+        A: Mul<N, Output: TypedInt>,
+        K: Mul<N, Output: TypedInt>,
+        MOL: Mul<N, Output: TypedInt>,
+        CD: Mul<N, Output: TypedInt>,
     {
         Dimension::new()
     }
@@ -110,20 +110,20 @@ impl Default for Dimension<Z0, Z0, Z0, Z0, Z0, Z0, Z0> {
 impl<M1, M2, KG1, KG2, S1, S2, A1, A2, K1, K2, MOL1, MOL2, CD1, CD2> 
     Mul<Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>> for Dimension<M1, KG1, S1, A1, K1, MOL1, CD1>
 where
-    M1: Integer + Add<M2, Output:Integer>,
-    M2: Integer,
-    KG1: Integer + Add<KG2, Output:Integer>,
-    KG2: Integer,
-    S1: Integer + Add<S2, Output:Integer>,
-    S2: Integer,
-    A1: Integer + Add<A2, Output:Integer>,
-    A2: Integer,
-    K1: Integer + Add<K2, Output:Integer>,
-    K2: Integer,
-    MOL1: Integer + Add<MOL2, Output:Integer>,
-    MOL2: Integer,
-    CD1: Integer + Add<CD2, Output:Integer>,
-    CD2: Integer,
+    M1: TypedInt + Add<M2, Output:TypedInt>,
+    M2: TypedInt,
+    KG1: TypedInt + Add<KG2, Output:TypedInt>,
+    KG2: TypedInt,
+    S1: TypedInt + Add<S2, Output:TypedInt>,
+    S2: TypedInt,
+    A1: TypedInt + Add<A2, Output:TypedInt>,
+    A2: TypedInt,
+    K1: TypedInt + Add<K2, Output:TypedInt>,
+    K2: TypedInt,
+    MOL1: TypedInt + Add<MOL2, Output:TypedInt>,
+    MOL2: TypedInt,
+    CD1: TypedInt + Add<CD2, Output:TypedInt>,
+    CD2: TypedInt,
 {
     type Output = Dimension<
         <M1 as Add<M2>>::Output,
@@ -145,20 +145,20 @@ where
 impl<M1, M2, KG1, KG2, S1, S2, A1, A2, K1, K2, MOL1, MOL2, CD1, CD2> 
     Div<Dimension<M2, KG2, S2, A2, K2, MOL2, CD2>> for Dimension<M1, KG1, S1, A1, K1, MOL1, CD1>
 where
-    M1: Integer + Sub<M2, Output: Integer>,
-    M2: Integer,
-    KG1: Integer + Sub<KG2, Output: Integer>,
-    KG2: Integer,
-    S1: Integer + Sub<S2, Output: Integer>,
-    S2: Integer,
-    A1: Integer + Sub<A2, Output: Integer>,
-    A2: Integer,
-    K1: Integer + Sub<K2, Output: Integer>,
-    K2: Integer,
-    MOL1: Integer + Sub<MOL2, Output: Integer>,
-    MOL2: Integer,
-    CD1: Integer + Sub<CD2, Output: Integer>,
-    CD2: Integer,
+    M1: TypedInt + Sub<M2, Output: TypedInt>,
+    M2: TypedInt,
+    KG1: TypedInt + Sub<KG2, Output: TypedInt>,
+    KG2: TypedInt,
+    S1: TypedInt + Sub<S2, Output: TypedInt>,
+    S2: TypedInt,
+    A1: TypedInt + Sub<A2, Output: TypedInt>,
+    A2: TypedInt,
+    K1: TypedInt + Sub<K2, Output: TypedInt>,
+    K2: TypedInt,
+    MOL1: TypedInt + Sub<MOL2, Output: TypedInt>,
+    MOL2: TypedInt,
+    CD1: TypedInt + Sub<CD2, Output: TypedInt>,
+    CD2: TypedInt,
 {
     type Output = Dimension<
         <M1 as Sub<M2>>::Output,

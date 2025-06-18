@@ -23,14 +23,14 @@ impl Neg for P1 {
     }
 }
 
-impl<H: NonZero + Neg> Neg for B0<H>{
+impl<H: NonZero + Default + Neg<Output: NonZero + Default>> Neg for B0<H>{
     type Output = B0<H::Output>;
     fn neg(self) -> Self::Output {
         B0::new()
     }
 }
 
-impl<H: NonZero + Not> Neg for B1<H>{
+impl<H: NonZero + Default + Not<Output: NonZero + Default>> Neg for B1<H>{
     type Output = B0<H::Output>;
     fn neg(self) -> Self::Output {
         B0::new()

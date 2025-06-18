@@ -1,20 +1,9 @@
-use crate::number::{Z0, P1, N1, B0, B1, NonZero, NonOne, Unsigned};
+use crate::number::{Z0, P1, N1, B0, B1, NonZero, Unsigned};
 use super::sub1::Sub1;
 use core::ops::Shr;
 
 // ==================== Right Shift Operation (>>) ====================
 // ==================== 右移运算（>>） ====================
-
-// Z0 >> U
-// Zero right shifted by any unsigned number is still zero
-// 零右移任何无符号数仍然是零
-impl<R: Unsigned> Shr<R> for Z0 {
-    type Output = Z0;
-    fn shr(self, _: R) -> Self::Output {
-        Z0  // 0 >> n = 0
-    }
-}
-
 // P1 >> U
 // Positive one right shifted by zero is itself
 // 正一右移零位是其本身
@@ -48,19 +37,10 @@ impl<R: Unsigned> Shr<R> for N1 {
 // B0 >> U
 // Binary number ending with 0 right shifted by zero is itself
 // 以0结尾的二进制数右移零位是其本身
-impl<H: NonZero> Shr<Z0> for B0<H> {
+impl<H: NonZero + Default> Shr<Z0> for B0<H> {
     type Output = Self;
     fn shr(self, _: Z0) -> Self::Output {
         self
-    }
-}
-
-// Binary number ending with 0 right shifted by one becomes its head
-// 以0结尾的二进制数右移一位变为其头部
-impl<H: NonZero> Shr<P1> for B0<H> {
-    type Output = H;
-    fn shr(self, _: P1) -> Self::Output {
-        H::default()
     }
 }
 
@@ -68,32 +48,20 @@ impl<H: NonZero> Shr<P1> for B0<H> {
 // Recursively shifts right by one until the shift amount is zero
 // 以0结尾的二进制数右移多于一位
 // 递归地右移一位直到移位量为零
-impl<H: NonZero, R: Unsigned + NonZero + NonOne + Sub1> Shr<R> for B0<H>
-where
-    H: Shr<<R as Sub1>::Output>
-{
-    type Output = <H as Shr<R::Output>>::Output;
+impl<H: NonZero + Default + Shr<<R as Sub1>::Output>, R: Unsigned + NonZero + Sub1> Shr<R> for B0<H>{
+    type Output = <  H as Shr< <R as Sub1>::Output >  >::Output;
     fn shr(self, r: R) -> Self::Output {
-        (self>>P1)>>r.sub1()
+        H::default() >> r.sub1()
     }
 }
 
 // B1 >> U
 // Binary number ending with 1 right shifted by zero is itself
 // 以1结尾的二进制数右移零位是其本身
-impl<H: NonZero> Shr<Z0> for B1<H> {
+impl<H: NonZero + Default> Shr<Z0> for B1<H> {
     type Output = Self;
     fn shr(self, _: Z0) -> Self::Output {
         self
-    }
-}
-
-// Binary number ending with 1 right shifted by one becomes its head
-// 以1结尾的二进制数右移一位变为其头部
-impl<H: NonZero> Shr<P1> for B1<H> {
-    type Output = H;
-    fn shr(self, _: P1) -> Self::Output {
-        H::default()
     }
 }
 
@@ -102,13 +70,10 @@ impl<H: NonZero> Shr<P1> for B1<H> {
 // and maintains the sign bit (B0 prefix)
 // 以1结尾的二进制数右移多于一位
 // 递归地右移一位直到移位量为零，并保持符号位（B0前缀）
-impl<H: NonZero, R: Unsigned + NonZero + NonOne + Sub1> Shr<R> for B1<H>
-where
-    H: Shr<<R as Sub1>::Output>
-{
-    type Output = <H as Shr<R::Output>>::Output;
+impl<H: NonZero + Default + Shr<<R as Sub1>::Output>, R: Unsigned + NonZero + Sub1> Shr<R> for B1<H>{
+    type Output = <  H as Shr< <R as Sub1>::Output >  >::Output;
     fn shr(self, r: R) -> Self::Output {
-        (self>>P1)>>(r.sub1())
+         H::default() >> r.sub1()
     }
 }
 

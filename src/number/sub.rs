@@ -1,9 +1,9 @@
 use core::ops::{Neg, Not, Sub};
-use crate::number::{Z0, N1, P1, B0, B1, Integer, NonZero};
+use crate::number::{Z0, N1, P1, B0, B1, TypedInt, NonZero};
 use super::add1::Add1;
 use super::sub1::Sub1;
 use super::standardization::{IfB0, IfB1};
-use crate::number::{Var,Numeric};
+use crate::number::{Var,Primitive};
 
 // ==================== 带借位减法 Trait ====================
 /// 带借位减法运算
@@ -97,19 +97,10 @@ where
 
 // ==================== 标准减法实现 (Sub trait) ====================
 
-// ========== Z0 - All ==========
-// Z0 - I = -I
-impl<I: Integer + Neg> Sub<I> for Z0 {
-    type Output = I::Output;
-    #[inline(always)]
-    fn sub(self, i: I) -> Self::Output {
-       -i
-    }
-}
 
 // ========== P1 - All ==========
 // P1 - I = -(I-P1)
-impl<I: Integer + Sub1> Sub<I> for P1
+impl<I: TypedInt + Sub1> Sub<I> for P1
 where
     <I as Sub1>::Output: Neg,
 {
@@ -122,7 +113,7 @@ where
 
 // ========== N1 - All ==========
 // N1 - I = -(I+P1)
-impl<I: Integer + Add1> Sub<I> for N1
+impl<I: TypedInt + Add1> Sub<I> for N1
 where
     <I as Add1>::Output: Neg,
 {
@@ -246,18 +237,10 @@ impl<H1: NonZero + Sub<H2,Output: IfB0>, H2: NonZero> Sub<B1<H2>> for B1<H1>{
 
 // ==================== 与Var<T>运算符重载 ====================
 
-// ==================== Z0 - Var<T> ====================
-// Z0 - Var<T>
-impl<T: Numeric + Neg> Sub<Var<T>> for Z0 {
-    type Output = Var<T>;
-    #[inline(always)]
-    fn sub(self, rhs: Var<T>) -> Self::Output {
-        Var(-rhs.0)
-    }
-}
+
 
 // ==================== P1 - Var<T> ====================
-impl<T: Numeric> Sub<Var<T>> for P1{
+impl<T: Primitive> Sub<Var<T>> for P1{
     type Output = Var<T>;
     #[inline(always)]
     fn sub(self, rhs: Var<T>) -> Self::Output {
@@ -266,7 +249,7 @@ impl<T: Numeric> Sub<Var<T>> for P1{
 }
 
 // ==================== N1 - Var<T> ====================
-impl<T: Numeric> Sub<Var<T>> for N1
+impl<T: Primitive> Sub<Var<T>> for N1
 where
     Var<T>: Neg,
     <Var<T> as Neg>::Output: Sub1,
@@ -280,9 +263,9 @@ where
 
 // ==================== B0 - Var<T> ====================
 // B0 - Var<T>
-impl<T: Numeric, H: NonZero> Sub<Var<T>> for B0<H>
+impl<T: Primitive, H: NonZero> Sub<Var<T>> for B0<H>
 where
-    B0<H>:Integer
+    B0<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
@@ -293,9 +276,9 @@ where
 
 // ==================== B1 - Var<T> ====================
 // B1 - Var<T>
-impl<T: Numeric, H: NonZero> Sub<Var<T>> for B1<H>
+impl<T: Primitive, H: NonZero> Sub<Var<T>> for B1<H>
 where
-    B1<H>:Integer
+    B1<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]

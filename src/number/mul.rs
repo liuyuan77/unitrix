@@ -1,23 +1,15 @@
 use core::ops::{Add, Mul, Neg};
-use crate::number::{Z0, P1, N1, B0, B1, Integer, NonZero};
-use crate::number::{Var,Numeric};
+use crate::number::{Z0, P1, N1, B0, B1, TypedInt, NonZero};
+use crate::number::{Var, Primitive};
 
 // ========== Basic Type Multiplication ==========
 // ========== 基本类型乘法 ==========
 
-// ========== 0 * All ==========
-// ========== 零乘以任何数 ==========
-impl<I: Integer> Mul<I> for Z0 {
-    type Output = Self;
-    #[inline(always)]
-    fn mul(self, _rhs: I) -> Self::Output {
-        self  // 0 * any = 0
-    }
-}
+
 
 // ========== 1 * All ==========
 // ========== 一乘以任何数 ==========
-impl<I: Integer> Mul<I> for P1 {
+impl<I: TypedInt> Mul<I> for P1 {
     type Output = I;
     #[inline(always)]
     fn mul(self, rhs: I) -> Self::Output {
@@ -27,7 +19,7 @@ impl<I: Integer> Mul<I> for P1 {
 
 // ========== -1 * All ==========
 // ========== 负一乘以任何数 ==========
-impl<I: Integer + Neg> Mul<I> for N1 {
+impl<I: TypedInt + Neg> Mul<I> for N1 {
     type Output = I::Output;
     #[inline(always)]
     fn mul(self, rhs: I) -> Self::Output {
@@ -40,7 +32,7 @@ impl<I: Integer + Neg> Mul<I> for N1 {
 
 // B0 * Z0 = 0
 // 以0结尾的数乘以零
-impl<H: NonZero> Mul<Z0> for B0<H> {
+impl<H: NonZero + Default> Mul<Z0> for B0<H> {
     type Output = Z0;
     #[inline(always)]
     fn mul(self, _rhs: Z0) -> Self::Output {
@@ -58,7 +50,7 @@ impl<H: NonZero> Mul<Z0> for B0<H> {
 // 说明：
 //    B0<H> * I = (2*H)*I = 2*(H*I) = B0<H * I>
 //    因此，B0<NonZero> * I = B0<NonZero * I>
-impl<H: NonZero + Mul<I>, I: NonZero> Mul<I> for B0<H> {
+impl<H: NonZero + Default + Mul<I,Output: NonZero + Default>, I: NonZero> Mul<I> for B0<H> {
     type Output = B0<H::Output>;
     #[inline(always)]
     fn mul(self, _rhs: I) -> Self::Output {
@@ -71,7 +63,7 @@ impl<H: NonZero + Mul<I>, I: NonZero> Mul<I> for B0<H> {
 
 // B1 * Z0 = 0
 // 以1结尾的数乘以零
-impl<H: NonZero> Mul<Z0> for B1<H> {
+impl<H: NonZero + Default> Mul<Z0> for B1<H> {
     type Output = Z0;
     #[inline(always)]
     fn mul(self, _rhs: Z0) -> Self::Output {
@@ -89,7 +81,7 @@ impl<H: NonZero> Mul<Z0> for B1<H> {
 // 说明：
 //    B1<H> * I = (1 + 2 * H) * I = I + 2 * (H * I)=I + B0<H * I>
 //    因此，B1<NonZero> * I = I + B0<NonZero * I>
-impl<H: NonZero + Mul<I>, I: NonZero + Add<B0<<H as Mul<I>>::Output>>> Mul<I> for B1<H> {
+impl<H: NonZero + Default + Mul<I,Output: NonZero + Default>, I: NonZero + Add<B0<<H as Mul<I>>::Output>>> Mul<I> for B1<H> {
     type Output = I::Output;
     #[inline(always)]
     fn mul(self, i: I) -> Self::Output {
@@ -98,17 +90,9 @@ impl<H: NonZero + Mul<I>, I: NonZero + Add<B0<<H as Mul<I>>::Output>>> Mul<I> fo
 }
 
 // ========== 与Var<T>乘法 ==========
-// ========== 0 * Var<T> ==========
-impl<T:Numeric> Mul<Var<T>> for Z0 {
-    type Output = Self;
-    #[inline(always)]
-    fn mul(self, _rhs: Var<T>) -> Self::Output {
-        self  // 0 * any = 0
-    }
-}
 
 // ========== 1 * Var<T> ==========
-impl<T: Numeric> Mul<Var<T>> for P1 {
+impl<T: Primitive> Mul<Var<T>> for P1 {
     type Output = Var<T>;
     #[inline(always)]
     fn mul(self, rhs: Var<T>) -> Self::Output {
@@ -117,7 +101,7 @@ impl<T: Numeric> Mul<Var<T>> for P1 {
 }
 
 // ========== -1 * Var<T> ==========
-impl<T: Numeric> Mul<Var<T>> for N1
+impl<T: Primitive> Mul<Var<T>> for N1
 where
     Var<T>: Neg,
 {
@@ -129,9 +113,9 @@ where
 }
 
 // ========== B0 * Var<T> ==========
-impl<H: NonZero, T:Numeric> Mul<Var<T>> for B0<H>
+impl<H: NonZero + Default, T: Primitive> Mul<Var<T>> for B0<H>
 where 
-    B0<H>: Integer,
+    B0<H>: TypedInt,
     Var<T>: Mul<Var<T>>,
 {
     type Output = Var<T>;
@@ -143,9 +127,9 @@ where
 
 // ========== B1 * Var<T> ==========
 
-impl<H: NonZero, T:Numeric> Mul<Var<T>> for B1<H>
+impl<H: NonZero + Default, T: Primitive> Mul<Var<T>> for B1<H>
 where 
-    B1<H>: Integer,
+    B1<H>: TypedInt,
     Var<T>: Mul<Var<T>>,
 {
     type Output = Var<T>;

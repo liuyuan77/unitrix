@@ -10,7 +10,7 @@ use super::{Si, Sied};
 use super::ratio::{NoRatio, Scaled};
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::number::{Numeric, Scalar, Var};
+use crate::number::{Primitive, VarType, Var};
 use super::Unitary;
 
 // ========== 辅助trait和实现 ==========
@@ -45,10 +45,10 @@ pub struct Unit<S: Sied, R>(pub S,pub PhantomData<R>);
 
 impl<T, D, Pr, R> Unit<Si<Var<T>, D, Pr>, R>
 where 
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar,
+    Var<T>: VarType,
     R: Scaled,
 {
     pub fn new(value: T) -> Self {
@@ -103,7 +103,7 @@ where
 }
 
 // U += T
-impl<T:Numeric, S: Sied, R: Scaled> AddAssign<T> for Unit<S, R>
+impl<T:Primitive, S: Sied, R: Scaled> AddAssign<T> for Unit<S, R>
 where
     S:  Sied + AddAssign<T>,
     R: Scaled,
@@ -115,7 +115,7 @@ where
 }
 
 // U += Var<T>
-impl<T:Numeric, S: Sied, R: Scaled> AddAssign<Var<T>> for Unit<S, R>
+impl<T:Primitive, S: Sied, R: Scaled> AddAssign<Var<T>> for Unit<S, R>
 where
     S:  Sied + AddAssign<Var<T>>,
     R: Scaled,
@@ -154,7 +154,7 @@ where
 }
 
 // U -= T
-impl<T:Numeric, S: Sied, R: Scaled> SubAssign<T> for Unit<S, R>
+impl<T:Primitive, S: Sied, R: Scaled> SubAssign<T> for Unit<S, R>
 where
     S:  Sied + SubAssign<T>,
     R: Scaled,
@@ -166,7 +166,7 @@ where
 }
 
 // U -= Var<T>
-impl<T:Numeric, S: Sied, R: Scaled> SubAssign<Var<T>> for Unit<S, R>
+impl<T:Primitive, S: Sied, R: Scaled> SubAssign<Var<T>> for Unit<S, R>
 where
     S:  Sied + SubAssign<Var<T>>,
     R: Scaled,
@@ -208,8 +208,8 @@ where
 //因为编译器对U * T与U * Si无法区分，Si必须用Si<Var<T>, D, Pr>表示
 impl<S, R, T, D, Pr> Mul<Si<Var<T>, D, Pr>> for Unit<S, R>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Mul<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -230,8 +230,8 @@ where
 // U * Var<T>
 impl<S, R, T> Mul<Var<T>> for Unit<S, R>
 where
-    T:Numeric,
-    Var<T>: Scalar,
+    T:Primitive,
+    Var<T>: VarType,
     S: Sied + Mul<Var<T>, Output: Sied>,
     R: Scaled,
 {
@@ -249,8 +249,8 @@ where
 // U * T
 impl<T, S, R> Mul<T> for Unit<S, R>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     S: Sied + Mul<T, Output: Sied>,
     R: Scaled,
 {
@@ -268,10 +268,10 @@ where
 // U *= Var<T>
 impl<T, S, R> MulAssign<Var<T>> for Unit<S, R>
 where
-    T: Numeric,
+    T: Primitive,
     S: Sied + MulAssign<Var<T>>,
     R: Scaled,
-    Var<T>: Scalar,
+    Var<T>: VarType,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: Var<T>) {
@@ -282,10 +282,10 @@ where
 // U *= T
 impl<T, S, R> MulAssign<T> for Unit<S, R>
 where
-    T: Numeric,
+    T: Primitive,
     S: Sied + MulAssign<Var<T>>,
     R: Scaled,
-    Var<T>: Scalar,
+    Var<T>: VarType,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: T) {
@@ -324,8 +324,8 @@ where
 //因为编译器对U / T与U / Si无法区分，Si必须用Si<Var<T>, D, Pr>表示
 impl<S, R, T, D, Pr> Div<Si<Var<T>, D, Pr>> for Unit<S, R>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Div<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -346,8 +346,8 @@ where
 // U / Var<T>
 impl<S, R, T> Div<Var<T>> for Unit<S, R>
 where
-    T:Numeric,
-    Var<T>: Scalar,
+    T:Primitive,
+    Var<T>: VarType,
     S: Sied + Div<Var<T>, Output: Sied>,
     R: Scaled,
 {
@@ -365,8 +365,8 @@ where
 // U / T
 impl<T, S, R> Div<T> for Unit<S, R>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     S: Sied + Div<T, Output: Sied>,
     R: Scaled,
 {
@@ -384,10 +384,10 @@ where
 // U /= Var<T>
 impl<T, S, R> DivAssign<Var<T>> for Unit<S, R>
 where
-    T: Numeric,
+    T: Primitive,
     S: Sied + DivAssign<Var<T>>,
     R: Scaled,
-    Var<T>: Scalar,
+    Var<T>: VarType,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: Var<T>) {
@@ -398,10 +398,10 @@ where
 // U /= T
 impl<T, S, R> DivAssign<T> for Unit<S, R>
 where
-    T: Numeric,
+    T: Primitive,
     S: Sied + DivAssign<Var<T>>,
     R: Scaled,
-    Var<T>: Scalar,
+    Var<T>: VarType,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: T) {

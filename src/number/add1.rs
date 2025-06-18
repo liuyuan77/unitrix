@@ -5,7 +5,7 @@
 //!     2. B0<H> + 1，该位B1，无进位，原高位是N1时要规范格式，即H=N1时要特化，此时源码为B0<N1>
 //!     3. B1<H> + 1，该位B0，有进位，当H+1 = Z0时要规范格式,即H=N1时要特化，此时源码为B1<N1>，不是简化格式
 
-use crate::number::{Z0, P1, N1, B0, B1, NonZero, NonNegOne, Var, Numeric};
+use crate::number::{Z0, P1, N1, B0, B1, NonZero, NonNegOne, Var, Primitive};
 /// 加一特质 / Increment trait
 /// 
 /// 为类型系统提供加一操作的计算能力
@@ -69,7 +69,7 @@ impl<H:NonZero + NonNegOne> Add1 for B0<H>{//P1替代B1<Z0>后，H不可能为Z0
 /// 
 /// 处理进位情况 / Handles carry case
 /// 0...1 + 1 = 0...(高位进位) / ...1 + 1 = ...0(with carry)
-impl<H:NonZero + NonNegOne + Add1> Add1 for B1<H>{//P1替代B1<Z0>后，H不可能为Z0
+impl<H:NonZero + NonNegOne + Add1<Output: NonZero>> Add1 for B1<H>{//P1替代B1<Z0>后，H不可能为Z0
     type Output = B0<H::Output>;
     #[inline(always)]
     fn add1(self) -> Self::Output{
@@ -96,7 +96,7 @@ pub type AddOne<A> = <A as Add1>::Output;
 
 /// Val<T> 加一实现 / Increment for Val<T>
 /// Val<T>
-impl<T:Numeric> Add1 for Var<T> {
+impl<T:Primitive> Add1 for Var<T> {
     type Output = Self;
     #[inline(always)]
     fn add1(self) -> Self::Output{

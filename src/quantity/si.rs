@@ -8,7 +8,7 @@ use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAss
 use crate::sealed::Sealed;
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::number::{Numeric, Scalar, Var};
+use crate::number::{Primitive, VarType, Var};
 use super::Unitary;
 use super::Unit;
 use super::ratio::{NoRatio, Scaled};
@@ -19,7 +19,7 @@ use super::ratio::{NoRatio, Scaled};
 /// - `D`: 量纲类型
 #[derive(Debug, Clone, Copy)]
 pub struct Si<
-    Value: Scalar,
+    Value: VarType,
     D:Dimensional,
     Pr:Prefixed,
 >(
@@ -31,10 +31,10 @@ pub struct Si<
 
 impl<T, D, Pr> Si<Var<T>, D, Pr>
 where 
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar,
+    Var<T>: VarType,
 {
     /// 创建新的SI量
     pub fn new(value: T) -> Self {
@@ -44,18 +44,18 @@ where
 
 // ========== trait实现 ==========
 
-impl<V: Scalar, Pr: Prefixed, D: Dimensional> Sealed for Si<V, D, Pr>{}
-impl<V: Scalar, Pr: Prefixed, D: Dimensional> Unitary for Si<V, D, Pr>{}
+impl<V: VarType, Pr: Prefixed, D: Dimensional> Sealed for Si<V, D, Pr>{}
+impl<V: VarType, Pr: Prefixed, D: Dimensional> Unitary for Si<V, D, Pr>{}
 
 /// 标记trait
 pub trait Sied: Sealed{}
-impl<V: Scalar, Pr: Prefixed, D: Dimensional> Sied for Si<V, D, Pr>{}
+impl<V: VarType, Pr: Prefixed, D: Dimensional> Sied for Si<V, D, Pr>{}
 
 // ========== 运算符重载 ==========
 
 // ----- 取负运算符 -----
 
-impl<V: Scalar, D: Dimensional, Pr: Prefixed> Neg for Si<V, D, Pr>
+impl<V: VarType, D: Dimensional, Pr: Prefixed> Neg for Si<V, D, Pr>
 where
     V: Neg<Output = V>,
 {
@@ -71,7 +71,7 @@ where
 // Si + Si
 impl<V, D, Pr> Add for Si<V, D, Pr>
 where
-    V: Scalar + Add<V, Output = V>,
+    V: VarType + Add<V, Output = V>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -84,7 +84,7 @@ where
 }
 
 // Si += Si
-impl<V: Scalar, D: Dimensional, Pr: Prefixed> AddAssign for Si<V, D, Pr>
+impl<V: VarType, D: Dimensional, Pr: Prefixed> AddAssign for Si<V, D, Pr>
 where
     V: AddAssign<V>,
 {
@@ -97,10 +97,10 @@ where
 // Si += T
 impl<T, D, Pr> AddAssign<T> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional ,
     Pr: Prefixed,
-    Var<T>: Scalar + AddAssign<Var<T>>,
+    Var<T>: VarType + AddAssign<Var<T>>,
 {
     /// 标量加法赋值 (+=)
     fn add_assign(&mut self, rhs: T) {
@@ -111,10 +111,10 @@ where
 // Si += Var<T>
 impl<T, D, Pr> AddAssign<Var<T>> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + AddAssign<Var<T>>,
+    Var<T>: VarType + AddAssign<Var<T>>,
 {
     fn add_assign(&mut self, rhs: Var<T>) {
         self.0 += rhs;
@@ -126,7 +126,7 @@ where
 // Si - Si
 impl<V, D, Pr> Sub for Si<V, D, Pr>
 where
-    V: Scalar + Sub<V, Output = V>,
+    V: VarType + Sub<V, Output = V>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -139,7 +139,7 @@ where
 }
 
 // Si -= Si
-impl<V: Scalar, D: Dimensional, Pr: Prefixed> SubAssign for Si<V, D, Pr>
+impl<V: VarType, D: Dimensional, Pr: Prefixed> SubAssign for Si<V, D, Pr>
 where
     V: SubAssign<V>,
 {
@@ -152,10 +152,10 @@ where
 // Si -= T
 impl<T, D, Pr> SubAssign<T> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional ,
     Pr: Prefixed,
-    Var<T>: Scalar + SubAssign<Var<T>>,
+    Var<T>: VarType + SubAssign<Var<T>>,
 {
     /// 标量加法赋值 (+=)
     fn sub_assign(&mut self, rhs: T) {
@@ -166,10 +166,10 @@ where
 // Si -= Var<T>
 impl<T, D, Pr> SubAssign<Var<T>> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + SubAssign<Var<T>>,
+    Var<T>: VarType + SubAssign<Var<T>>,
 {
     fn sub_assign(&mut self, rhs: Var<T>) {
         self.0 -= rhs;
@@ -180,7 +180,7 @@ where
 // Si * Si
 impl<V, D1, D2, Pr1, Pr2> Mul<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
 where
-    V: Scalar + Mul<V,Output: Scalar>,
+    V: VarType + Mul<V,Output: VarType>,
     D1: Dimensional + Mul<D2,Output: Dimensional>,
     D2: Dimensional,
     Pr1: Prefixed + Mul<Pr2,Output: Prefixed>,
@@ -197,8 +197,8 @@ where
 // Si * T
 impl<T, D, Pr> Mul<T> for Si<Var<T>, D, Pr>
 where
-    T:Numeric,
-    Var<T>: Scalar + Mul<Var<T>,Output: Scalar>,
+    T:Primitive,
+    Var<T>: VarType + Mul<Var<T>,Output: VarType>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -213,8 +213,8 @@ where
 // Si * Var<T>
 impl<T, D, Pr> Mul<Var<T>> for Si<Var<T>, D, Pr>
 where
-    T:Numeric,
-    Var<T>: Scalar + Mul<Var<T>,Output: Scalar>,
+    T:Primitive,
+    Var<T>: VarType + Mul<Var<T>,Output: VarType>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -229,10 +229,10 @@ where
 // Si *= T
 impl<T, D, Pr> MulAssign<T> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + MulAssign<Var<T>>,
+    Var<T>: VarType + MulAssign<Var<T>>,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: T) {
@@ -243,10 +243,10 @@ where
 // Si *= Var<T>
 impl<T, D, Pr> MulAssign<Var<T>> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + MulAssign<Var<T>>,
+    Var<T>: VarType + MulAssign<Var<T>>,
 {
     fn mul_assign(&mut self, rhs: Var<T>) {
         self.0 *= rhs;
@@ -257,8 +257,8 @@ where
 //因为编译器要求，需要拆解Si
 impl<S, R, T, D, Pr> Mul<Unit<S, R>> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Mul<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -280,7 +280,7 @@ where
 // Si / Si
 impl<V, D1, D2, Pr1, Pr2> Div<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
 where
-    V: Scalar + Div<V,Output: Scalar>,
+    V: VarType + Div<V,Output: VarType>,
     D1: Dimensional + Div<D2,Output: Dimensional>,
     D2: Dimensional,
     Pr1: Prefixed + Div<Pr2,Output: Prefixed>,
@@ -297,10 +297,10 @@ where
 // Si /= T
 impl<T, D, Pr> DivAssign<T> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + DivAssign<Var<T>>,
+    Var<T>: VarType + DivAssign<Var<T>>,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: T) {
@@ -311,10 +311,10 @@ where
 // Si /= Var<T>
 impl<T, D, Pr> DivAssign<Var<T>> for Si<Var<T>, D, Pr>
 where
-    T: Numeric,
+    T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: Scalar + DivAssign<Var<T>>,
+    Var<T>: VarType + DivAssign<Var<T>>,
 {
     fn div_assign(&mut self, rhs: Var<T>) {
         self.0 /= rhs;
@@ -325,8 +325,8 @@ where
 //因为编译器对Si要求，必须拆解后打包
 impl<T, D1, Pr1, D2, Pr2, R> Div<Unit<Si<Var<T>, D2, Pr2>, R>> for Si<Var<T>, D1, Pr1>
 where
-    T: Numeric,
-    Var<T>: Scalar,
+    T: Primitive,
+    Var<T>: VarType,
     D1: Dimensional,
     D2: Dimensional,
     Pr1: Prefixed,

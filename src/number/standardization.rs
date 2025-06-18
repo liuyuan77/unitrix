@@ -8,6 +8,8 @@
 
 use crate::number::{Z0, P1, N1, B0, B1, NonNegOne, NonZero};
 
+// ==================== Int ====================
+
 /// 处理 B0<H> 类型的标准化 / Standardization for B0<H> types
 ///
 /// 这个 trait 定义了将 B0<H> 类型数字标准化的行为。
@@ -44,7 +46,7 @@ pub trait IfB1 {
 ///
 /// 保持 B0<H> 结构不变，其中 H 是非零类型
 /// Maintains B0<H> structure where H is non-zero type
-impl<I: NonZero> IfB0 for I {
+impl<I: NonZero + Default> IfB0 for I {
     type Output = B0<I>;
     #[inline(always)]
     fn b0() -> Self::Output {
@@ -70,7 +72,7 @@ impl IfB0 for Z0 {// B0<Z0> => Z0
 ///
 /// 保持 B1<H> 结构不变，其中 H 是非零非负一类型
 /// Maintains B1<H> structure where H is non-zero non-negative-one type
-impl<I: NonZero + NonNegOne> IfB1 for I {
+impl<I: NonZero + NonNegOne + Default> IfB1 for I {
     type Output = B1<I>;
     #[inline(always)]
     fn b1() -> Self::Output {
@@ -101,3 +103,5 @@ impl IfB1 for Z0 {// B1<Z0> => P1
         P1::new()
     }
 }
+
+// ==================== Float ====================

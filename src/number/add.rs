@@ -7,7 +7,7 @@
 /// - 带进位加法 (Addition with carry)
 /// - 结果标准化处理 (Result standardization)
 use core::ops::Add;
-use crate::number::{Z0, P1, N1, B0, B1, Add1, Sub1, Integer, NonZero, IfB0,IfB1, Var,Numeric};
+use crate::number::{Z0, P1, N1, B0, B1, Add1, Sub1, TypedInt, NonZero, IfB0,IfB1, Var,Primitive};
 
 // ==================== 带进位加法 Trait ====================
 // ==================== Addition With Carry Trait ====================
@@ -41,12 +41,12 @@ impl<H: NonZero + Add1<Output: IfB0>> AddWithCarry<P1> for B0<H>{//避免B1<N1>,
 }
 
 // B0 + N1
-impl<H: NonZero> AddWithCarry<N1> for B0<H>{
+impl<H: NonZero + Default> AddWithCarry<N1> for B0<H>{
     type Output = Self;
 }
 
 // B0 + B0
-impl<H1: NonZero + IfB1,H2: NonZero> AddWithCarry<B0<H2>> for B0<H1>{
+impl<H1: NonZero + Default + IfB1,H2: NonZero +Default> AddWithCarry<B0<H2>> for B0<H1>{
     type Output = H1::Output;
 }
 
@@ -58,39 +58,30 @@ impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>,H2: NonZero> AddWithCarry<B1<H
 // ========== 带进位B1 + NonZero ==========
 
 // B1 + P1
-impl<H: NonZero + Add1<Output: IfB1>> AddWithCarry<P1> for B1<H>{
+impl<H: NonZero + Default + Add1<Output: IfB1>> AddWithCarry<P1> for B1<H>{
     type Output = < <H as Add1>::Output as IfB1 >::Output;
 }
 
 // B1 + N1
-impl<H: NonZero + Add1> AddWithCarry<N1> for B1<H>{// 不变
+impl<H: NonZero + Default + Add1> AddWithCarry<N1> for B1<H>{// 不变
     type Output = Self;
 }
 
 // B1 + B0
-impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>,H2: NonZero> AddWithCarry<B0<H2>> for B1<H1>{
+impl<H1: NonZero + Default + AddWithCarry<H2, Output: IfB0>,H2: NonZero+ Default> AddWithCarry<B0<H2>> for B1<H1>{
     type Output = <H1::Output as IfB0>::Output;
 }
 
 // B1 + B1
-impl<H1: NonZero + AddWithCarry<H2,Output: IfB1>,H2: NonZero> AddWithCarry<B1<H2>> for B1<H1>{
+impl<H1: NonZero + Default + AddWithCarry<H2,Output: IfB1>,H2: NonZero + Default> AddWithCarry<B1<H2>> for B1<H1>{
     type Output = <H1::Output as IfB1>::Output;
 }
 
 // ==================== 运算符重载 ====================
 
-// ==================== Z0 + All ====================
-// Z0 + 整数
-impl<I: Integer> Add<I> for Z0 {
-    type Output = I;
-    #[inline(always)]
-    fn add(self, rhs: I) -> Self::Output {
-        rhs
-    }
-}
 
 // ==================== P1 + All ====================
-impl<I: Integer + Add1> Add<I> for P1 {
+impl<I: TypedInt + Add1> Add<I> for P1 {
     type Output = I::Output;
     #[inline(always)]
     fn add(self, rhs: I) -> Self::Output {
@@ -99,7 +90,7 @@ impl<I: Integer + Add1> Add<I> for P1 {
 }
 
 // ==================== N1 + All ====================
-impl<I: Integer + Sub1> Add<I> for N1 {
+impl<I: TypedInt + Sub1> Add<I> for N1 {
     type Output = I::Output;
     #[inline(always)]
     fn add(self, rhs: I) -> Self::Output {
@@ -217,18 +208,8 @@ impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>, H2: NonZero> Add<B1<H2>> for 
 
 // ==================== 与Var<T>运算符重载 ====================
 
-// ==================== Z0 + Var<T> ====================
-// Z0 + Var<T>
-impl<T: Numeric> Add<Var<T>> for Z0 {
-    type Output = Var<T>;
-    #[inline(always)]
-    fn add(self, rhs: Var<T>) -> Self::Output {
-        rhs
-    }
-}
-
 // ==================== P1 + Var<T> ====================
-impl<T: Numeric + Add1> Add<Var<T>> for P1 {
+impl<T: Primitive + Add1> Add<Var<T>> for P1 {
     type Output = Var<T>;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
@@ -237,7 +218,7 @@ impl<T: Numeric + Add1> Add<Var<T>> for P1 {
 }
 
 // ==================== N1 + Var<T> ====================
-impl<T: Numeric + Sub1> Add<Var<T>> for N1 {
+impl<T: Primitive + Sub1> Add<Var<T>> for N1 {
     type Output = Var<T>;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
@@ -247,9 +228,9 @@ impl<T: Numeric + Sub1> Add<Var<T>> for N1 {
 
 // ==================== B0 + Var<T> ====================
 // B0 + Var<T>
-impl<T: Numeric, H: NonZero> Add<Var<T>> for B0<H>
+impl<T: Primitive, H: NonZero> Add<Var<T>> for B0<H>
 where
-    B0<H>:Integer
+    B0<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
@@ -260,9 +241,9 @@ where
 
 // ==================== B1 + Var<T> ====================
 // B1 + Var<T>
-impl<T: Numeric, H: NonZero> Add<Var<T>> for B1<H>
+impl<T: Primitive, H: NonZero> Add<Var<T>> for B1<H>
 where
-    B1<H>:Integer
+    B1<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]

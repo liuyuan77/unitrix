@@ -1,7 +1,7 @@
 // ratio.rs
 //! 比例因子模块，处理所有非10的幂次的比例关系，包括时间单位、角度单位等
 use crate::sealed::Sealed;
-use crate::number::{Integer, NonZero, Z0};
+use crate::number::{TypedInt, NonZero, Z0};
 
 use core::marker::PhantomData;
 use core::ops::{Add, Sub, Mul, Div};
@@ -13,11 +13,11 @@ use core::ops::{Add, Sub, Mul, Div};
 /// ExpPi: PI的幂次
 /// Exp2: 2的幂次
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Ratio<Exp5: Integer, ExpPi:Integer, Exp3: Integer, Exp2: Integer>(
+pub struct Ratio<Exp5: TypedInt, ExpPi:TypedInt, Exp3: TypedInt, Exp2: TypedInt>(
     PhantomData<(Exp5, ExpPi, Exp3, Exp2)>
 );
 
-/* impl<E5: Integer, Pi: Integer, E3: Integer, E2: Integer> Ratio<E5, Pi, E3, E2>{
+/* impl<E5: TypedInt, Pi: TypedInt, E3: TypedInt, E2: TypedInt> Ratio<E5, Pi, E3, E2>{
     /// 计算比例因子的实际值
     pub fn value() -> f64 {
         5f64.powi(E5::to_i32()) * PI.powi(Pi::to_i32()) * 3f64.powi(E3::to_i32()) * 2f64.powi(E2::to_i32())
@@ -35,14 +35,14 @@ pub struct Ratio<Exp5: Integer, ExpPi:Integer, Exp3: Integer, Exp2: Integer>(
 // 实现比例因子的乘法
 impl<E5a, EPia, E3a, E2a, E5b, EPib, E3b, E2b> Mul<Ratio<E5b, EPib, E3b, E2b>> for Ratio<E5a, EPia, E3a, E2a>
 where
-    E5a: Integer + Add<E5b, Output: Integer>,
-    EPia: Integer + Add<EPib, Output: Integer>,
-    E3a: Integer + Add<E3b, Output: Integer>,
-    E2a: Integer + Add<E2b, Output: Integer>,
-    E5b: Integer,
-    EPib: Integer,
-    E3b: Integer,
-    E2b: Integer,
+    E5a: TypedInt + Add<E5b, Output: TypedInt>,
+    EPia: TypedInt + Add<EPib, Output: TypedInt>,
+    E3a: TypedInt + Add<E3b, Output: TypedInt>,
+    E2a: TypedInt + Add<E2b, Output: TypedInt>,
+    E5b: TypedInt,
+    EPib: TypedInt,
+    E3b: TypedInt,
+    E2b: TypedInt,
 {
     type Output = Ratio<
         <E5a as Add<E5b>>::Output,
@@ -59,14 +59,14 @@ where
 // 实现比例因子的除法
 impl<E5a, EPia, E3a, E2a, E5b, EPib, E3b, E2b> Div<Ratio<E5b, EPib, E3b, E2b>> for Ratio<E5a, EPia, E3a, E2a>
 where
-    E5a: Integer + Sub<E5b, Output: Integer>,
-    EPia: Integer + Sub<EPib, Output: Integer>,
-    E3a: Integer + Sub<E3b, Output: Integer>,
-    E2a: Integer + Sub<E2b, Output: Integer>,
-    E5b: Integer,
-    EPib: Integer,
-    E3b: Integer,
-    E2b: Integer,
+    E5a: TypedInt + Sub<E5b, Output: TypedInt>,
+    EPia: TypedInt + Sub<EPib, Output: TypedInt>,
+    E3a: TypedInt + Sub<E3b, Output: TypedInt>,
+    E2a: TypedInt + Sub<E2b, Output: TypedInt>,
+    E5b: TypedInt,
+    EPib: TypedInt,
+    E3b: TypedInt,
+    E2b: TypedInt,
 {
     type Output = Ratio<
         <E5a as Sub<E5b>>::Output,
@@ -81,11 +81,11 @@ where
 }
 
 pub trait Scaled: Sealed{}// 不含NoRatio
-impl<Exp5: Integer, ExpPi:Integer, Exp3: Integer, Exp2: Integer> Sealed for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
+impl<Exp5: TypedInt, ExpPi:TypedInt, Exp3: TypedInt, Exp2: TypedInt> Sealed for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
 
-impl<Exp5: Integer, ExpPi: Integer, Exp3: Integer, Exp2: NonZero> Scaled for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
-impl<Exp5: Integer, ExpPi: Integer, Exp3: NonZero> Scaled for Ratio<Exp5, ExpPi, Exp3, Z0>{}
-impl<Exp5: Integer, ExpPi: NonZero> Scaled for Ratio<Exp5, ExpPi, Z0, Z0>{}
+impl<Exp5: TypedInt, ExpPi: TypedInt, Exp3: TypedInt, Exp2: NonZero> Scaled for Ratio<Exp5, ExpPi, Exp3, Exp2>{}
+impl<Exp5: TypedInt, ExpPi: TypedInt, Exp3: NonZero> Scaled for Ratio<Exp5, ExpPi, Exp3, Z0>{}
+impl<Exp5: TypedInt, ExpPi: NonZero> Scaled for Ratio<Exp5, ExpPi, Z0, Z0>{}
 impl<Exp5: NonZero> Scaled for Ratio<Exp5, Z0, Z0, Z0>{}
 
 // ========== 常用比例定义 ==========
