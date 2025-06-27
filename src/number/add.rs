@@ -209,8 +209,11 @@ impl<H1: NonZero + AddWithCarry<H2, Output: IfB0>, H2: NonZero> Add<B1<H2>> for 
 // ==================== 与Var<T>运算符重载 ====================
 
 // ==================== P1 + Var<T> ====================
-impl<T: Primitive + Add1> Add<Var<T>> for P1 {
-    type Output = Var<T>;
+impl<T: Primitive> Add<Var<T>> for P1
+where 
+    Var<T>: Add1,
+{
+    type Output = <Var<T> as Add1>::Output;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
         rhs.add1()
@@ -218,36 +221,36 @@ impl<T: Primitive + Add1> Add<Var<T>> for P1 {
 }
 
 // ==================== N1 + Var<T> ====================
-impl<T: Primitive + Sub1> Add<Var<T>> for N1 {
+impl<T: Primitive + From<N1>> Add<Var<T>> for N1 {
     type Output = Var<T>;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
-        rhs.sub1()
+        Var(T::from(N1) + rhs.0)
     }
 }
 
 // ==================== B0 + Var<T> ====================
 // B0 + Var<T>
-impl<T: Primitive, H: NonZero> Add<Var<T>> for B0<H>
+impl<T: Primitive + From<B0<H>>, H: NonZero> Add<Var<T>> for B0<H>
 where
     B0<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
-        Var(rhs.0 + T::from(B0::<H>::to_i32()))
+        Var(rhs.0 + T::from(self))
     }
 }
 
 // ==================== B1 + Var<T> ====================
 // B1 + Var<T>
-impl<T: Primitive, H: NonZero> Add<Var<T>> for B1<H>
+impl<T: Primitive + From<B1<H>>, H: NonZero> Add<Var<T>> for B1<H>
 where
     B1<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
     fn add(self, rhs: Var<T>) -> Self::Output {
-        Var(rhs.0 + T::from(B1::<H>::to_i32()))
+        Var(rhs.0 + T::from(self))
     }
 }

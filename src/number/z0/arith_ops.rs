@@ -77,10 +77,10 @@ impl<I: NonZero> Div<I> for Z0 {
 }
 
 // Z0 / Var<T>
-impl<T: Primitive + PartialEq> Div<Var<T>> for Z0 {
+impl<T: Primitive + PartialEq +From< Z0>> Div<Var<T>> for Z0 {
     type Output = Z0;
     fn div(self, rhs: Var<T>) -> Self::Output {
-        assert!(rhs.0 != T::from(0), "division by zero");
+        assert!(rhs.0 != T::from(Z0), "division by zero");
         Z0
     }
 }
@@ -102,10 +102,10 @@ impl<I: NonZero> Rem<I> for Z0 {
 }
 
 // Z0 % Var<T>
-impl<T: Primitive + PartialEq> Rem<Var<T>> for Z0 {
+impl<T: Primitive + PartialEq + From<Z0>> Rem<Var<T>> for Z0 {
     type Output = Z0;
     fn rem(self, rhs: Var<T>) -> Self::Output {
-        assert!(rhs.0 != T::from(0), "division by zero");
+        assert!(rhs.0 != T::from(Z0), "division by zero");
         Z0
     }
 }

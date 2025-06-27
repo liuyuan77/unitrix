@@ -8,7 +8,7 @@ use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign, MulAssign, DivAss
 use crate::sealed::Sealed;
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::number::{Primitive, VarType, Var};
+use crate::number::{Positive, Primitive, Var};
 use super::Unitary;
 use super::Unit;
 use super::ratio::{NoRatio, Scaled};
@@ -19,7 +19,7 @@ use super::ratio::{NoRatio, Scaled};
 /// - `D`: 量纲类型
 #[derive(Debug, Clone, Copy)]
 pub struct Si<
-    Value: VarType,
+    Value,
     D:Dimensional,
     Pr:Prefixed,
 >(
@@ -34,7 +34,6 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType,
 {
     /// 创建新的SI量
     pub fn new(value: T) -> Self {
@@ -44,20 +43,20 @@ where
 
 // ========== trait实现 ==========
 
-impl<V: VarType, Pr: Prefixed, D: Dimensional> Sealed for Si<V, D, Pr>{}
-impl<V: VarType, Pr: Prefixed, D: Dimensional> Unitary for Si<V, D, Pr>{}
+impl<T: Primitive, Pr: Prefixed, D: Dimensional> Sealed for Si<Var<T>, D, Pr>{}
+impl<T: Primitive, Pr: Prefixed, D: Dimensional> Unitary for Si<Var<T>, D, Pr>{}
 
 /// 标记trait
 pub trait Sied: Sealed{}
-impl<V: VarType, Pr: Prefixed, D: Dimensional> Sied for Si<V, D, Pr>{}
+impl<T: Primitive, Pr: Prefixed, D: Dimensional> Sied for Si<Var<T>, D, Pr>{}
 
 // ========== 运算符重载 ==========
 
 // ----- 取负运算符 -----
 
-impl<V: VarType, D: Dimensional, Pr: Prefixed> Neg for Si<V, D, Pr>
+impl<T: Primitive, D: Dimensional, Pr: Prefixed> Neg for Si<Var<T>, D, Pr>
 where
-    V: Neg<Output = V>,
+    Var<T>: Neg<Output = Var<T>>,
 {
     type Output = Self;
     
@@ -69,9 +68,9 @@ where
 
 // ----- 加法运算符及加法赋值 -----
 // Si + Si
-impl<V, D, Pr> Add for Si<V, D, Pr>
+impl<T, D, Pr> Add for Si<Var<T>, D, Pr>
 where
-    V: VarType + Add<V, Output = V>,
+    Var<T>: Add<Var<T>, Output = Var<T>>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -84,9 +83,9 @@ where
 }
 
 // Si += Si
-impl<V: VarType, D: Dimensional, Pr: Prefixed> AddAssign for Si<V, D, Pr>
+impl<T: Positive, D: Dimensional, Pr: Prefixed> AddAssign for Si<Var<T>, D, Pr>
 where
-    V: AddAssign<V>,
+    Var<T>: AddAssign<Var<T>>,
 {
     /// 加法赋值（要求相同前缀和量纲）
     fn add_assign(&mut self, rhs: Self) {
@@ -100,7 +99,7 @@ where
     T: Primitive,
     D: Dimensional ,
     Pr: Prefixed,
-    Var<T>: VarType + AddAssign<Var<T>>,
+    Var<T>: AddAssign<Var<T>>,
 {
     /// 标量加法赋值 (+=)
     fn add_assign(&mut self, rhs: T) {
@@ -114,7 +113,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + AddAssign<Var<T>>,
+    Var<T>: AddAssign<Var<T>>,
 {
     fn add_assign(&mut self, rhs: Var<T>) {
         self.0 += rhs;
@@ -124,9 +123,9 @@ where
 // ----- 减法运算符及减法赋值 -----
 
 // Si - Si
-impl<V, D, Pr> Sub for Si<V, D, Pr>
+impl<T: Primitive, D, Pr> Sub for Si<Var<T>, D, Pr>
 where
-    V: VarType + Sub<V, Output = V>,
+    Var<T>: Sub<Var<T>, Output = Var<T>>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -139,9 +138,9 @@ where
 }
 
 // Si -= Si
-impl<V: VarType, D: Dimensional, Pr: Prefixed> SubAssign for Si<V, D, Pr>
+impl<T: Primitive, D: Dimensional, Pr: Prefixed> SubAssign for Si<Var<T>, D, Pr>
 where
-    V: SubAssign<V>,
+    Var<T>: SubAssign<Var<T>>,
 {
     /// 减法赋值（要求相同前缀和量纲）
     fn sub_assign(&mut self, rhs: Self) {
@@ -155,7 +154,7 @@ where
     T: Primitive,
     D: Dimensional ,
     Pr: Prefixed,
-    Var<T>: VarType + SubAssign<Var<T>>,
+    Var<T>: SubAssign<Var<T>>,
 {
     /// 标量加法赋值 (+=)
     fn sub_assign(&mut self, rhs: T) {
@@ -169,7 +168,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + SubAssign<Var<T>>,
+    Var<T>: SubAssign<Var<T>>,
 {
     fn sub_assign(&mut self, rhs: Var<T>) {
         self.0 -= rhs;
@@ -178,18 +177,18 @@ where
 
 // ----- 乘法运算符及乘法赋值 -----
 // Si * Si
-impl<V, D1, D2, Pr1, Pr2> Mul<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
+impl<T, D1, D2, Pr1, Pr2> Mul<Si<Var<T>, D2, Pr2>> for Si<Var<T>, D1, Pr1>
 where
-    V: VarType + Mul<V,Output: VarType>,
+    Var<T>: Mul<Var<T>,Output = Var<T>>,
     D1: Dimensional + Mul<D2,Output: Dimensional>,
     D2: Dimensional,
     Pr1: Prefixed + Mul<Pr2,Output: Prefixed>,
     Pr2: Prefixed,
 {
-    type Output = Si< <V as Mul>::Output, <D1 as Mul<D2>>::Output, <Pr1 as Mul<Pr2>>::Output >;
+    type Output = Si< <Var<T> as Mul>::Output, <D1 as Mul<D2>>::Output, <Pr1 as Mul<Pr2>>::Output >;
     
     /// 乘法（量纲相乘，前缀相加）
-    fn mul(self, rhs: Si<V, D2, Pr2>) -> Self::Output {
+    fn mul(self, rhs: Si<Var<T>, D2, Pr2>) -> Self::Output {
         Si(self.0 * rhs.0, PhantomData)
     }
 }
@@ -198,7 +197,7 @@ where
 impl<T, D, Pr> Mul<T> for Si<Var<T>, D, Pr>
 where
     T:Primitive,
-    Var<T>: VarType + Mul<Var<T>,Output: VarType>,
+    Var<T>: Mul<Var<T>,Output=Var<T>>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -214,7 +213,7 @@ where
 impl<T, D, Pr> Mul<Var<T>> for Si<Var<T>, D, Pr>
 where
     T:Primitive,
-    Var<T>: VarType + Mul<Var<T>,Output: VarType>,
+    Var<T>: Mul<Var<T>,Output=Var<T>>,
     D: Dimensional,
     Pr: Prefixed,
 {
@@ -232,7 +231,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + MulAssign<Var<T>>,
+    Var<T>: MulAssign<Var<T>>,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: T) {
@@ -246,7 +245,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + MulAssign<Var<T>>,
+    Var<T>: MulAssign<Var<T>>,
 {
     fn mul_assign(&mut self, rhs: Var<T>) {
         self.0 *= rhs;
@@ -258,7 +257,6 @@ where
 impl<S, R, T, D, Pr> Mul<Unit<S, R>> for Si<Var<T>, D, Pr>
 where
     T: Primitive,
-    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Mul<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -278,18 +276,18 @@ where
 
 // ----- 除法运算符及除法赋值 -----
 // Si / Si
-impl<V, D1, D2, Pr1, Pr2> Div<Si<V, D2, Pr2>> for Si<V, D1, Pr1>
+impl<T, D1, D2, Pr1, Pr2> Div<Si<Var<T>, D2, Pr2>> for Si<Var<T>, D1, Pr1>
 where
-    V: VarType + Div<V,Output: VarType>,
+    Var<T>: Div<Var<T>, Output=Var<T>>,
     D1: Dimensional + Div<D2,Output: Dimensional>,
     D2: Dimensional,
     Pr1: Prefixed + Div<Pr2,Output: Prefixed>,
     Pr2: Prefixed,
 {
-    type Output = Si< <V as Div>::Output, <D1 as Div<D2>>::Output, <Pr1 as Div<Pr2>>::Output >;
+    type Output = Si< <Var<T> as Div>::Output, <D1 as Div<D2>>::Output, <Pr1 as Div<Pr2>>::Output >;
     
     /// 除法
-    fn div(self, rhs: Si<V, D2, Pr2>) -> Self::Output {
+    fn div(self, rhs: Si<Var<T>, D2, Pr2>) -> Self::Output {
         Si(self.0 / rhs.0, PhantomData)
     }
 }
@@ -300,7 +298,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + DivAssign<Var<T>>,
+    Var<T>: DivAssign<Var<T>>,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: T) {
@@ -314,7 +312,7 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType + DivAssign<Var<T>>,
+    Var<T>: DivAssign<Var<T>>,
 {
     fn div_assign(&mut self, rhs: Var<T>) {
         self.0 /= rhs;
@@ -326,7 +324,6 @@ where
 impl<T, D1, Pr1, D2, Pr2, R> Div<Unit<Si<Var<T>, D2, Pr2>, R>> for Si<Var<T>, D1, Pr1>
 where
     T: Primitive,
-    Var<T>: VarType,
     D1: Dimensional,
     D2: Dimensional,
     Pr1: Prefixed,

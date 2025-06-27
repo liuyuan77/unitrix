@@ -237,19 +237,17 @@ impl<H1: NonZero + Sub<H2,Output: IfB0>, H2: NonZero> Sub<B1<H2>> for B1<H1>{
 
 // ==================== 与Var<T>运算符重载 ====================
 
-
-
 // ==================== P1 - Var<T> ====================
-impl<T: Primitive> Sub<Var<T>> for P1{
+impl<T: Primitive + From<P1>> Sub<Var<T>> for P1{
     type Output = Var<T>;
     #[inline(always)]
     fn sub(self, rhs: Var<T>) -> Self::Output {
-        Var(1.into()) - rhs
+        Var(T::from(P1) - rhs.0)
     }
 }
 
 // ==================== N1 - Var<T> ====================
-impl<T: Primitive> Sub<Var<T>> for N1
+impl<T: Primitive + From<N1>> Sub<Var<T>> for N1
 where
     Var<T>: Neg,
     <Var<T> as Neg>::Output: Sub1,
@@ -257,32 +255,32 @@ where
     type Output = Var<T>;
     #[inline(always)]
     fn sub(self, rhs: Var<T>) -> Self::Output {
-        Var((-1).into()) - rhs
+        Var(T::from(N1) - rhs.0)
     }
 }
 
 // ==================== B0 - Var<T> ====================
 // B0 - Var<T>
-impl<T: Primitive, H: NonZero> Sub<Var<T>> for B0<H>
+impl<T: Primitive + From<B0<H>>, H: NonZero> Sub<Var<T>> for B0<H>
 where
     B0<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
     fn sub(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(B0::<H>::to_i32()) - rhs.0)
+        Var(T::from(self) - rhs.0)
     }
 }
 
 // ==================== B1 - Var<T> ====================
 // B1 - Var<T>
-impl<T: Primitive, H: NonZero> Sub<Var<T>> for B1<H>
+impl<T: Primitive + From<B1<H>>, H: NonZero> Sub<Var<T>> for B1<H>
 where
     B1<H>:TypedInt
 {
     type Output = Var<T>;
     #[inline(always)]
     fn sub(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(B1::<H>::to_i32()) - rhs.0)
+        Var(T::from(self) - rhs.0)
     }
 }

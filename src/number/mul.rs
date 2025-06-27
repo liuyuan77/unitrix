@@ -113,7 +113,7 @@ where
 }
 
 // ========== B0 * Var<T> ==========
-impl<H: NonZero + Default, T: Primitive> Mul<Var<T>> for B0<H>
+impl<H: NonZero + Default, T: Primitive + From<B0<H>>> Mul<Var<T>> for B0<H>
 where 
     B0<H>: TypedInt,
     Var<T>: Mul<Var<T>>,
@@ -121,13 +121,13 @@ where
     type Output = Var<T>;
     #[inline(always)]
     fn mul(self, rhs: Var<T>) -> Self::Output {
-        Var(rhs.0 * T::from(B0::<H>::to_i32()))
+        Var(rhs.0 * T::from(self))
     }
 }
 
 // ========== B1 * Var<T> ==========
 
-impl<H: NonZero + Default, T: Primitive> Mul<Var<T>> for B1<H>
+impl<H: NonZero + Default, T: Primitive + From<B1<H>>> Mul<Var<T>> for B1<H>
 where 
     B1<H>: TypedInt,
     Var<T>: Mul<Var<T>>,
@@ -135,7 +135,7 @@ where
     type Output = Var<T>;
     #[inline(always)]
     fn mul(self, rhs: Var<T>) -> Self::Output {
-        Var(rhs.0 * T::from(B0::<H>::to_i32()))
+        Var(rhs.0 * T::from(self))
     }
 }
 

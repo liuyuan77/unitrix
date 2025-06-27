@@ -10,7 +10,7 @@ use super::{Si, Sied};
 use super::ratio::{NoRatio, Scaled};
 use super::Dimensional;
 use super::prefix::Prefixed;
-use crate::number::{Primitive, VarType, Var};
+use crate::number::{Primitive, Var};
 use super::Unitary;
 
 // ========== 辅助trait和实现 ==========
@@ -48,7 +48,6 @@ where
     T: Primitive,
     D: Dimensional,
     Pr: Prefixed,
-    Var<T>: VarType,
     R: Scaled,
 {
     pub fn new(value: T) -> Self {
@@ -209,7 +208,6 @@ where
 impl<S, R, T, D, Pr> Mul<Si<Var<T>, D, Pr>> for Unit<S, R>
 where
     T: Primitive,
-    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Mul<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -231,7 +229,6 @@ where
 impl<S, R, T> Mul<Var<T>> for Unit<S, R>
 where
     T:Primitive,
-    Var<T>: VarType,
     S: Sied + Mul<Var<T>, Output: Sied>,
     R: Scaled,
 {
@@ -250,7 +247,6 @@ where
 impl<T, S, R> Mul<T> for Unit<S, R>
 where
     T: Primitive,
-    Var<T>: VarType,
     S: Sied + Mul<T, Output: Sied>,
     R: Scaled,
 {
@@ -271,7 +267,6 @@ where
     T: Primitive,
     S: Sied + MulAssign<Var<T>>,
     R: Scaled,
-    Var<T>: VarType,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: Var<T>) {
@@ -285,7 +280,6 @@ where
     T: Primitive,
     S: Sied + MulAssign<Var<T>>,
     R: Scaled,
-    Var<T>: VarType,
 {
     /// 标量乘法赋值 (*=)
     fn mul_assign(&mut self, rhs: T) {
@@ -325,7 +319,6 @@ where
 impl<S, R, T, D, Pr> Div<Si<Var<T>, D, Pr>> for Unit<S, R>
 where
     T: Primitive,
-    Var<T>: VarType,
     D: Dimensional,
     Pr: Prefixed,
     S: Sied + Div<Si<Var<T>, D, Pr>, Output: Sied>,
@@ -347,7 +340,6 @@ where
 impl<S, R, T> Div<Var<T>> for Unit<S, R>
 where
     T:Primitive,
-    Var<T>: VarType,
     S: Sied + Div<Var<T>, Output: Sied>,
     R: Scaled,
 {
@@ -366,7 +358,6 @@ where
 impl<T, S, R> Div<T> for Unit<S, R>
 where
     T: Primitive,
-    Var<T>: VarType,
     S: Sied + Div<T, Output: Sied>,
     R: Scaled,
 {
@@ -387,7 +378,6 @@ where
     T: Primitive,
     S: Sied + DivAssign<Var<T>>,
     R: Scaled,
-    Var<T>: VarType,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: Var<T>) {
@@ -401,7 +391,6 @@ where
     T: Primitive,
     S: Sied + DivAssign<Var<T>>,
     R: Scaled,
-    Var<T>: VarType,
 {
     /// 标量除法赋值 (/=)
     fn div_assign(&mut self, rhs: T) {

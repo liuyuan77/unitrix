@@ -2,20 +2,21 @@
 //!
 //! 本模块提供了一种在类型系统中表示整数的方法，使用二进制补码形式。
 //! 正数和负数有不同的表示规则，详见下面的文档说明。
+mod bit;
+pub use bit::*;
+
+mod cmp;
+pub use cmp::*;
 
 mod types;
 pub(super) use types::*;
 
-mod types1;
-pub(super) use types1::*;
+mod method;
+pub use method::*;
 
 // 基本体及特质
 mod traits;
 pub use traits::*;
-
-mod var_traits;
-pub use var_traits::*;
-
 
 pub mod special;
 // pub mod not_a_number;
@@ -24,11 +25,10 @@ pub mod z0;
 
 
 
+pub mod from;
 
 
-
-mod variable;
-pub use variable::*;
+pub mod variable;
 
 mod to_int; //常量转变量
 pub use to_int::Const;

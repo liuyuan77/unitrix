@@ -29,30 +29,24 @@ Delivers zero-cost abstractions with no_std support.**
 
 ```rust
 // 基础常量类型
-pub struct B0<H>(PhantomData<H>);  // 二进制0节点
-pub struct B1<H>(PhantomData<H>);  // 二进制1节点
+pub struct B0<Other>(PhantomData<Other>);  // 二进制0节点
+pub struct B1<Other>(PhantomData<Other>);  // 二进制1节点
 pub struct Z0;                     // 0
 pub struct P1;                     // +1
 pub struct N1;                     // -1
-
-// 常量运算特性
-pub trait Integer: Default + Sealed + Copy {
-    fn to_i32() -> i32;  // 常量值转换
-}
-
-// 示例实现
-impl Integer for P1 {
-    fn to_i32() -> i32 { 1 }
-}
+pub struct FixedPoint<IntPart, FracPart>(PhantomData<(IntPart, FracPart)>);    //小数
+pub struct Float<Significand, Exponent>(PhantomData<(Significand, Exponent)>)  //浮点数
+```
 
 ### 2. Var Structure / 变量结构
+
 ```rust
 /// 变量结构体，桥接常量与变量计算
 #[derive(Debug, Clone, Copy)]
-pub struct Var<T: Numeric>(pub T);
+pub struct Var<T>(pub T);
 
 // 支持的运算类型
-impl<T: Numeric> Add for Var<T> {
+impl<T: Primitive> Add for Var<T> {
     type Output = Self;
     fn add(self, b: Self) -> Self {
         Var(self.0 + b.0)
@@ -60,7 +54,7 @@ impl<T: Numeric> Add for Var<T> {
 }
 
 // 与常量的混合运算
-impl<T: Numeric, C: Integer> Add<C> for Var<T> {
+impl<T: Primitive, C: Integer> Add<C> for Var<T> {
     type Output = C::Output;
     fn add(self, c: C) -> Self::Output {
         c + self  // 调用常量的加法实现
@@ -95,21 +89,17 @@ impl<M1, M2, KG1, KG2> Mul<Dimension<M2, KG2>> for Dimension<M1, KG1> {
 
 ```rust
 /// SI基础单位结构
-pub struct Si<Value: Scalar, D: Dimensional, Pr: Prefixed>(
+pub struct Si<
+    Value,
+    D:Dimensional,
+    Pr:Prefixed,
+>(
     pub Value,
-    PhantomData<(D, Pr)>
+    pub PhantomData<(D, Pr)>
 );
 
 /// 复合单位结构
-pub struct Unit<S: Sied, R: Scaled>(pub S, PhantomData<R>);
-
-// 单位运算示例
-impl<V, D1, D2> Mul<Si<V, D2>> for Si<V, D1> {
-    type Output = Si<V, Prod<D1, D2>>;
-    fn mul(self, rhs: Si<V, D2>) -> Self::Output {
-        Si(self.0 * rhs.0, PhantomData)
-    }
-}
+pub struct Unit<S: Sied, R>(pub S,pub PhantomData<R>);
 ```
 
 ## Features / 特性
@@ -125,56 +115,30 @@ impl<V, D1, D2> Mul<Si<V, D2>> for Si<V, D1> {
 | 🌉 Var-based mixed calculation | 基于Var的混合计算 |
 | 🔧 Full operator overloading | 完整运算符重载 |
 
-## Usage Examples / 使用示例
+## Development Progress Checklist / 开发进度清单
 
-### Basic Operations / 基础运算
+### Core Features / 核心功能
 
-```rust
-use unitrix::quantity::*;
-use unitrix::Number::Var;
-// 常量计算
-let force = Kilogram(const(5)) * Meter(const(9)) / (SECOND * SECOND);
-println!("Force: {} N", force.value());
+⚠️ Constant calculation system / 常量计算系统
+✅ Var structure bridge / 变量结构桥接
+✅ Dimensional analysis / 量纲分析系统
+✅ SI unit framework / SI单位框架
+⚠️ Full operator overloading / 完整运算符重载
 
-// 变量计算
-let mass = Newton(5.0);
-let acceleration = Var(9.0);
-let force = mass * acceleration;
-```
+### Test Coverage / 测试覆盖
 
-### Mixed Calculation / 混合计算
+⚠️ Constant ops tests (10% coverage) / 常量运算测试(10%覆盖率)
+⚠️ Mixed calculation tests / 混合计算测试
+⚠️ Dimensional validation / 量纲验证测试
+⚠️ Unit conversion suite / 单位转换测试套件
+⚠️ Edge case tests (in progress) / 边界条件测试(进行中)
 
-```rust
-use unitrix::Number::*;
-use unitrix::quantity::*;
+### Documentation / 文档
 
-// 编译时常量与运行时变量混合运算
-let G = Const(6) * METER*METER*METER / (KILOGRAM * SECOND * SECOND);
-let m1 = Var(5.972e24);  // 地球质量 (kg)
-let m2 = Var(7.342e22);  // 月球质量 (kg)
-let r = Var(3.844e8);    // 地月距离 (m)
-
-let f = G * m1 * m2 / (r * r);
-println!("Gravitational force: {} N", f.value());
-```
-
-### Temperature Conversion / 温度转换
-
-```rust
-use unitrix::quantity::{Celsius, Fahrenheit};
-
-let boiling = quantity::Si::<f64, Celsius>::new(100.0);
-let fahr = boiling.convert::<Fahrenheit>();
-println!("Water boils at {} °F", fahr.value()); 
-```
-
-### Unit Math / 单位运算
-
-```rust
-let speed = 60.0 * km / h;
-let time = 30.0 * min;
-let distance = speed * time;  // 自动推导为km单位
-```
+⚠️ Core architecture / 核心架构文档
+⚠️ API reference / API参考文档
+⚠️ Tutorial examples (10% complete) / 教程示例(10%完成)
+❌ Advanced usage guide / 高级用法指南
 
 ## Advanced Features / 高级特性
 
@@ -186,8 +150,6 @@ let distance = speed * time;  // 自动推导为km单位
 
 + 支持所有算术运算的trait实现
 
-+ 常量到运行时的值转换 (to_i32())
-
 2. Var结构桥接
 
 + 同时支持变量与常量的运算
@@ -196,7 +158,7 @@ let distance = speed * time;  // 自动推导为km单位
 
 + 完整的运算符重载 (+, -, *, /, +=, -=, *=, /=)
 
-+ 支持i64和f64基础类型
++ 支持i8-i64和f32、f64基础类型
 
 3. 量纲系统
 

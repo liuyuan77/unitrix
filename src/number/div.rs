@@ -192,25 +192,25 @@ impl<H1:NonZero, H2:NonZero> Div<B1<H2>> for B1<H1> {
 
 
 // ========== 1 / Var<T> ==========
-impl<T: Primitive> Div<Var<T>> for P1 {
+impl<T: Primitive + From<P1>> Div<Var<T>> for P1 {
     type Output = Var<T>;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(1) / rhs.0)
+        Var(T::from(P1) / rhs.0)
     }
 }
 
 // ========== -1 / Var<T> ==========
-impl<T: Primitive> Div<Var<T>> for N1{
+impl<T: Primitive + From<N1>> Div<Var<T>> for N1{
     type Output = <Var<T> as Neg>::Output;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(-1) / rhs.0)
+        Var(T::from(N1) / rhs.0)
     }
 }
 
 // ========== B0 / Var<T> ==========
-impl<H: NonZero, T:Primitive> Div<Var<T>> for B0<H>
+impl<H: NonZero, T:Primitive + From<B0<H>>> Div<Var<T>> for B0<H>
 where 
     B0<H>: TypedInt,
     Var<T>: Div<Var<T>>,
@@ -218,13 +218,13 @@ where
     type Output = Var<T>;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(B0::<H>::to_i32()) / rhs.0)
+        Var(T::from(self) / rhs.0)
     }
 }
 
 // ========== B1 / Var<T> ==========
 
-impl<H: NonZero, T: Primitive> Div<Var<T>> for B1<H>
+impl<H: NonZero, T: Primitive + From<B1<H>>> Div<Var<T>> for B1<H>
 where 
     B1<H>: TypedInt,
     Var<T>: Div<Var<T>>,
@@ -232,6 +232,6 @@ where
     type Output = Var<T>;
     #[inline(always)]
     fn div(self, rhs: Var<T>) -> Self::Output {
-        Var(T::from(B1::<H>::to_i32()) / rhs.0)
+        Var(T::from(self) / rhs.0)
     }
 }

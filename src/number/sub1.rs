@@ -95,14 +95,12 @@ impl Sub1 for B0<P1>{
     }
 }
 
-#[allow(dead_code)]
-pub type SubOne<I> = <I as Sub1>::Output;
 
-/// Val<T> - 1
-impl<T:Primitive> Sub1 for Var<T> {
+/// Val<T>-1
+impl<T: Primitive + From<P1>> Sub1 for Var<T> {
     type Output = Self;
     #[inline(always)]
     fn sub1(self) -> Self::Output{
-        Self(self.0 - 1.into())
+        Self(self.0 - T::from(P1))
     }
 }

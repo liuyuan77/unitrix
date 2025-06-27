@@ -1,6 +1,23 @@
-use core::ops::{Add, Sub, Mul, Div, AddAssign, SubAssign};
+use core::ops::{Neg, Add, Sub, Mul, Div, AddAssign, SubAssign};
 use crate::sealed::Sealed;
 use crate::number::{Special, Z0, P1, N1, B0, B1, Float};
+
+/// The **marker trait** for compile time bits.
+pub trait Bit: Sealed + Copy + Default + 'static {
+    #[allow(missing_docs)]
+    const U8: u8;
+    #[allow(missing_docs)]
+    const BOOL: bool;
+
+    /// Instantiates a singleton representing this bit.
+    fn new() -> Self;
+
+    #[allow(missing_docs)]
+    fn to_u8() -> u8;
+    #[allow(missing_docs)]
+    fn to_bool() -> bool;
+}
+
 // =============================================
 // ============ 标记特质定义 ====================
 // ========== Marker Traits Definition ==========
@@ -38,7 +55,7 @@ pub trait TypedInt: TypedNum + Copy + 'static {
 
 /// 非零类型化整数的标记特质
 /// Marker trait for non-zero typed integers
-pub trait NonZero: TypedInt {}
+pub trait NonZero: TypedInt + Default {}
 
 /// 不等于1的类型化整数的标记特质
 /// Marker trait for typed integers not equal to 1
@@ -103,6 +120,29 @@ pub trait PrimitiveInt:
 {}
 
 pub trait PrimitiveFloat:
+    Add<Output = Self> +
+    Sub<Output = Self> +
+    Mul<Output = Self> +
+    Div<Output = Self> +
+    AddAssign +
+    SubAssign +
+    Copy +
+    Clone +
+    Default +
+    Sized +
+    'static
+{}
+
+/// 定义 Primitive trait，约束 Var泛型参数 T 必须实现基本数值运算
+/// 包括：
+/// - 一元负号运算 (Neg)
+/// - 加减乘除运算 (Add, Sub, Mul, Div)
+/// - 复合赋值运算 (AddAssign, SubAssign)
+/// - 复制语义 (Copy, Clone)
+/// - 默认值 (Default)
+/// - 静态生命周期 ('static)
+pub trait Primitive:
+    Neg<Output = Self> +
     Add<Output = Self> +
     Sub<Output = Self> +
     Mul<Output = Self> +
@@ -280,3 +320,13 @@ impl PrimitiveInt for isize {}
 
 impl PrimitiveFloat for f32 {}
 impl PrimitiveFloat for f64 {}
+
+//Primitive
+impl Primitive for i8 {}
+impl Primitive for i16 {}
+impl Primitive for i32 {}
+impl Primitive for i64 {}
+impl Primitive for i128 {}
+impl Primitive for isize {}
+impl Primitive for f32 {}
+impl Primitive for f64 {}
